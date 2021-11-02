@@ -16,10 +16,8 @@ bucket_name = parser.get("aws_boto_credentials", "bucket_name")
 oltp_username = parser.get("oltp_users", "username")
 oltp_password = parser.get("oltp_users", "password")
 
-countries = ["Spain", "India", "France", "Vietnam", "China"]
 context = SparkContext(master="local[*]", appName="readJSON")
 spark = SparkSession.builder.getOrCreate()
-responsesAcc=[]
 
 schema = StructType([
     StructField("main", StructType([
@@ -34,40 +32,33 @@ schema = StructType([
     StructField("name", StringType())
 ])
 
-for country in countries:
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={country}&appid={api_key}'
-    print(url)
 
-    # read json api
-    httpData = urlopen(url).read().decode('utf-8')
-    print(httpData)
+# convert to dataframe with an imposed schema to make sure that the structure is correct. We might do this as well with json-schemas (in json format)
+rdd = context.parallelize([httpData])
+jsonDF = spark.read.json(rdd, schema=schema)
+jsonDF.printSchema()
+# root
+#  |-- main: struct (nullable = true)
+#  |    |-- temp: float (nullable = true)
+#  |    |-- feels_like: float (nullable = true)
+#  |    |-- temp_min: float (nullable = true)
+#  |    |-- temp_max: float (nullable = true)
+#  |    |-- pressure: float (nullable = true)
+#  |    |-- humidity: float (nullable = true)
+#  |-- id: integer (nullable = true)
+#  |-- name: string (nullable = true)
 
-    # convert to dataframe with an imposed schema to make sure that the structure is correct. We might do this as well with json-schemas (in json format)
-    rdd = context.parallelize([httpData])
-    jsonDF = spark.read.json(rdd, schema=schema)
-    jsonDF.printSchema()
-    # root
-    #  |-- main: struct (nullable = true)
-    #  |    |-- temp: float (nullable = true)
-    #  |    |-- feels_like: float (nullable = true)
-    #  |    |-- temp_min: float (nullable = true)
-    #  |    |-- temp_max: float (nullable = true)
-    #  |    |-- pressure: float (nullable = true)
-    #  |    |-- humidity: float (nullable = true)
-    #  |-- id: integer (nullable = true)
-    #  |-- name: string (nullable = true)
+jsonDF.show()
+# +--------------------+-------+-----+
+# |                main|     id| name|
+# +--------------------+-------+-----+
+# |{282.57, 280.01, ...|2510769|Spain|
+# +--------------------+-------+-----+
 
-    jsonDF.show()
-    # +--------------------+-------+-----+
-    # |                main|     id| name|
-    # +--------------------+-------+-----+
-    # |{282.57, 280.01, ...|2510769|Spain|
-    # +--------------------+-------+-----+
-
-    inJson = jsonDF.toJSON().first()
-    responsesAcc.append(inJson)
-    print(inJson)
-    # {"main":{"temp":283.38,"feels_like":282.6,"temp_min":282.45,"temp_max":284.31,"pressure":1016.0,"humidity":82.0},"id":2510769,"name":"Spain"}
+inJson = jsonDF.toJSON().first()
+responsesAcc.append(inJson)
+print(inJson)
+# {"main":{"temp":283.38,"feels_like":282.6,"temp_min":282.45,"temp_max":284.31,"pressure":1016.0,"humidity":82.0},"id":2510769,"name":"Spain"}
 
 with open("extract/responses.json", 'a') as outfile1:
     for row in responsesAcc:
