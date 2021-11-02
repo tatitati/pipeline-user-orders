@@ -38,6 +38,7 @@ df_users.show()
 # +------+
 # |samuel|
 # +------+
+df_users.write.parquet("extract/users.parquet")
 
 df_orders = spark\
     .read\
@@ -57,3 +58,4 @@ df_orders.show()
 # |  2|      1|   20|2021-11-02 13:49:36|
 # |  3|      3|  100|2021-11-02 13:49:36|
 # +---+-------+-----+-------------------+
+df_orders.write.parquet("extract/orders.parquet")
