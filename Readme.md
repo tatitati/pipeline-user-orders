@@ -7,3 +7,8 @@ Parquet:
     -> allow schema evolution
     -> includes data compression
     -> etc
+
+### Q: can I copy parquet files from s3 to snowflake?
+    -> yes
+
+   
