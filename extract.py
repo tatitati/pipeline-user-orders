@@ -5,8 +5,10 @@ from urllib.request import Request, urlopen
 from pyspark.sql.types import *
 import boto3
 import configparser
+import findspark
 import datetime
 import os
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars /Users/tati/lab/de/pipeline-user-orders/mysql-connector-java-8.0.12/mysql-connector-java-8.0.12.jar  pyspark-shell'
 
 parser = configparser.ConfigParser()
 parser.read("pipeline.conf")
@@ -17,62 +19,32 @@ oltp_username = parser.get("oltp_users", "username")
 oltp_password = parser.get("oltp_users", "password")
 
 context = SparkContext(master="local[*]", appName="readJSON")
-spark = SparkSession.builder.getOrCreate()
-
-schema = StructType([
-    StructField("main", StructType([
-        StructField("temp", FloatType()),
-        StructField("feels_like", FloatType()),
-        StructField("temp_min", FloatType()),
-        StructField("temp_max", FloatType()),
-        StructField("pressure", FloatType()),
-        StructField("humidity", FloatType())
-    ])),
-    StructField("id", IntegerType()),
-    StructField("name", StringType())
-])
 
 
-# convert to dataframe with an imposed schema to make sure that the structure is correct. We might do this as well with json-schemas (in json format)
-rdd = context.parallelize([httpData])
-jsonDF = spark.read.json(rdd, schema=schema)
-jsonDF.printSchema()
-# root
-#  |-- main: struct (nullable = true)
-#  |    |-- temp: float (nullable = true)
-#  |    |-- feels_like: float (nullable = true)
-#  |    |-- temp_min: float (nullable = true)
-#  |    |-- temp_max: float (nullable = true)
-#  |    |-- pressure: float (nullable = true)
-#  |    |-- humidity: float (nullable = true)
-#  |-- id: integer (nullable = true)
-#  |-- name: string (nullable = true)
+spark = SparkSession\
+    .builder\
+    .master("local")\
+    .appName("PySpark_MySQL_test")\
+    .getOrCreate()
 
-jsonDF.show()
-# +--------------------+-------+-----+
-# |                main|     id| name|
-# +--------------------+-------+-----+
-# |{282.57, 280.01, ...|2510769|Spain|
-# +--------------------+-------+-----+
 
-inJson = jsonDF.toJSON().first()
-responsesAcc.append(inJson)
-print(inJson)
-# {"main":{"temp":283.38,"feels_like":282.6,"temp_min":282.45,"temp_max":284.31,"pressure":1016.0,"humidity":82.0},"id":2510769,"name":"Spain"}
+conn_df = spark\
+    .read\
+    .format("jdbc")\
+    .option("url", "jdbc:mysql://localhost:3306/usersorders") \
+    .option("driver", "com.mysql.cj.jdbc.Driver")\
+    .option("dbtable", "users")\
+    .option("user", oltp_username)\
+    .option("password", oltp_password)\
+    .load()
 
-with open("extract/responses.json", 'a') as outfile1:
-    for row in responsesAcc:
-        outfile1.write(row + '\n')
+conn_df.show()
+# +---+---------+---+------------------+-------------------+----------+
+# | id|     name|age|           address|         created_at|updated_at|
+# +---+---------+---+------------------+-------------------+----------+
+# |  1|francisco| 34|   chalk avenue 23|2021-11-02 13:49:36|      null|
+# |  2|   samuel| 86|    crown road 101|2021-11-02 13:49:36|      null|
+# |  3|     john| 20|salvador square 10|2021-11-02 13:49:36|      null|
+# +---+---------+---+------------------+-------------------+----------+
 
-s3 = boto3.resource(
-    's3',
-    aws_access_key_id=access_key,
-    aws_secret_access_key = secret_key
-)
 
-now = datetime.datetime.now()
-s3_file = f'{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.json'
-s3.Bucket(bucket_name).upload_file("extract/responses.json", s3_file)
-
-# clean
-os.remove("extract/responses.json")
