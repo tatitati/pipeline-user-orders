@@ -31,7 +31,7 @@ df_users = spark\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
     .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("query", "select name from users where name='samuel' limit 1")\
+    .option("query", "select * from users where name='samuel'")\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
