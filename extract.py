@@ -27,8 +27,7 @@ spark = SparkSession\
     .appName("PySpark_MySQL_test")\
     .getOrCreate()
 
-
-conn_df = spark\
+df_users = spark\
     .read\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
@@ -38,7 +37,7 @@ conn_df = spark\
     .option("password", oltp_password)\
     .load()
 
-conn_df.show()
+df_users.show()
 # +---+---------+---+------------------+-------------------+----------+
 # | id|     name|age|           address|         created_at|updated_at|
 # +---+---------+---+------------------+-------------------+----------+
@@ -47,4 +46,21 @@ conn_df.show()
 # |  3|     john| 20|salvador square 10|2021-11-02 13:49:36|      null|
 # +---+---------+---+------------------+-------------------+----------+
 
+df_orders = spark\
+    .read\
+    .format("jdbc")\
+    .option("url", "jdbc:mysql://localhost:3306/usersorders") \
+    .option("driver", "com.mysql.cj.jdbc.Driver")\
+    .option("dbtable", "orders")\
+    .option("user", oltp_username)\
+    .option("password", oltp_password)\
+    .load()
 
+df_orders.show()
+# +---+-------+-----+-------------------+
+# | id|id_user|spent|         created_at|
+# +---+-------+-----+-------------------+
+# |  1|      1|   30|2021-11-02 13:49:36|
+# |  2|      1|   20|2021-11-02 13:49:36|
+# |  3|      3|  100|2021-11-02 13:49:36|
+# +---+-------+-----+-------------------+
