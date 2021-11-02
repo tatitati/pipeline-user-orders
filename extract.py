@@ -1,12 +1,7 @@
 #!/usr/local/bin/python3
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
-from urllib.request import Request, urlopen
-from pyspark.sql.types import *
-import boto3
 import configparser
-import findspark
-import datetime
 import os
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars /Users/tati/lab/de/pipeline-user-orders/mysql-connector-java-8.0.12/mysql-connector-java-8.0.12.jar  pyspark-shell'
 
