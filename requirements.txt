@@ -1,0 +1,8 @@
+pyfunctional
+jsonschema
+pyspark
+numpy
+certifi
+json-flatten
+pandas
+boto3
