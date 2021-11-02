@@ -32,19 +32,17 @@ df_users = spark\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
     .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("dbtable", "users")\
+    .option("query", "select name from users where name='samuel' limit 1")\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
 
 df_users.show()
-# +---+---------+---+------------------+-------------------+----------+
-# | id|     name|age|           address|         created_at|updated_at|
-# +---+---------+---+------------------+-------------------+----------+
-# |  1|francisco| 34|   chalk avenue 23|2021-11-02 13:49:36|      null|
-# |  2|   samuel| 86|    crown road 101|2021-11-02 13:49:36|      null|
-# |  3|     john| 20|salvador square 10|2021-11-02 13:49:36|      null|
-# +---+---------+---+------------------+-------------------+----------+
+# +------+
+# |  name|
+# +------+
+# |samuel|
+# +------+
 
 df_orders = spark\
     .read\
