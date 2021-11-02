@@ -1,0 +1,8 @@
+CREATE STAGE "MYDBT"."DE_BRONZE".s3pipelineusersorders
+    URL = 's3://pipelineusersorders'
+    CREDENTIALS = (AWS_KEY_ID = 'XXXXXXXXXX' AWS_SECRET_KEY = 'XXXXXX');
+
+
+CREATE OR REPLACE FILE FORMAT my_parquet_format
+  TYPE = PARQUET
+  COMPRESSION = SNAPPY;
