@@ -1,7 +1,7 @@
 [aws_boto_credentials]
 access_key = XXXXXXXX
 secret_key = XXXXXXX
-bucket_name = apiopenweathermap
+bucket_name = pipelineusersorders
 
 [oltp_users]
 username = root

@@ -13,3 +13,21 @@ Parquet:
 
 ### Q: do I need to specify the schema when reading from oltp-mysql?
     -> No. If you’re loading data into Spark from a file, you’ll probably want to specify a schema to avoid making Spark infer it. For a MySQL database, however, that’s not necessary since it has its own schema and Spark can translate it.
+
+### Q: I uploaded a parquet file to s3 (myfile.parquet). How can I see from snowflake what data contains this?:
+
+    ```
+    LIST @s3pipelineusersorders;
+
+    CREATE OR REPLACE FILE FORMAT my_parquet_format
+      TYPE = PARQUET
+      COMPRESSION = SNAPPY;
+
+    SELECT $1
+    FROM @s3pipelineusersorders/myfile.parquet
+    (file_format => 'my_parquet_format');
+
+    SELECT $1:name::varchar
+    FROM @s3pipelineusersorders/myfile.parquet
+    (file_format => 'my_parquet_format');
+    ```

@@ -1,7 +1,11 @@
 #!/usr/local/bin/python3
+from io import BytesIO
+import boto3
+
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
 import configparser
+import datetime
 import os
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars /Users/tati/lab/de/pipeline-user-orders/mysql-connector-java-8.0.12/mysql-connector-java-8.0.12.jar  pyspark-shell'
 
@@ -38,7 +42,7 @@ df_users.show()
 # +------+
 # |samuel|
 # +------+
-df_users.write.parquet("extract/users.parquet")
+# df_users.write.parquet("extract/users.parquet")
 
 df_orders = spark\
     .read\
@@ -58,4 +62,18 @@ df_orders.show()
 # |  2|      1|   20|2021-11-02 13:49:36|
 # |  3|      3|  100|2021-11-02 13:49:36|
 # +---+-------+-----+-------------------+
-df_orders.write.parquet("extract/orders.parquet")
+# df_orders.write.parquet("extract/orders.parquet")
+
+
+# upload to s3
+s3 = boto3.resource(
+    's3',
+    aws_access_key_id=access_key,
+    aws_secret_access_key=secret_key
+)
+
+out_buffer = BytesIO()
+df_users.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+now = datetime.datetime.now()
+s3_file = f'{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())
