@@ -3,6 +3,11 @@ access_key = XXXXXXXX
 secret_key = XXXXXXX
 bucket_name = pipelineusersorders
 
+[snowflake]
+username = XXXXXXX
+password = XXXXXX
+account_name = XXXXXX.eu-central-1
+
 [oltp_users]
 username = root
 password = XXXXXXXX

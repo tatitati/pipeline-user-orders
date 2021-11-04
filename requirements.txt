@@ -6,3 +6,4 @@ certifi
 json-flatten
 pandas
 boto3
+snowflake-connector-python
