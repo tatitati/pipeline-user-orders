@@ -10,15 +10,18 @@ create table users(
     age integer not null,
     address varchar(60) not null,
     created_at datetime not null default CURRENT_TIMESTAMP,
-    updated_at datetime,
+    updated_at datetime default null,
     primary key (id)
 );
+
 
 create table orders(
     id integer not null auto_increment,
     id_user integer not null,
     spent integer not null,
+    status varchar(50) not null default 'processing',
     created_at datetime not null default CURRENT_TIMESTAMP,
+    update_at datetime default null,
     primary key(id),
     foreign key (id_user) references users(id)
 );
