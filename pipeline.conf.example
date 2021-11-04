@@ -3,7 +3,7 @@ access_key = XXXXXXXX
 secret_key = XXXXXXX
 bucket_name = pipelineusersorders
 
-[snowflake]
+[snowflake_credentials]
 username = XXXXXXX
 password = XXXXXX
 account_name = XXXXXX.eu-central-1
