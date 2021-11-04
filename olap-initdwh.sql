@@ -14,7 +14,11 @@ CREATE OR REPLACE FILE FORMAT my_parquet_format
   TYPE = PARQUET
   COMPRESSION = SNAPPY;
 
-CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".raw_table(
+CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".users(
+  PARQUET_RAW VARIANT not null,
+  created_at datetime not null default CURRENT_TIMESTAMP()
+);
+CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
   PARQUET_RAW VARIANT not null,
   created_at datetime not null default CURRENT_TIMESTAMP()
 );

@@ -11,7 +11,9 @@ account_name = parser.get("snowflake_credentials", "account_name")
 snow_conn = snowflake.connector.connect(
     user = username,
     password = password,
-    account = account_name
+    account = account_name,
+    database="mydbt",
+    schema="de_bronze"
 )
 
 sql_users = """
