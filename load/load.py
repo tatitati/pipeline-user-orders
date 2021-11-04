@@ -4,14 +4,14 @@ import snowflake.connector
 
 parser = configparser.ConfigParser()
 parser.read("../pipeline.conf")
-username = parser.get("snowflake_credentials", "username")
-password = parser.get("snowflake_credentials", "password")
-account_name = parser.get("snowflake_credentials", "account_name")
+snowflake_username = parser.get("snowflake_credentials", "username")
+snowflake_password = parser.get("snowflake_credentials", "password")
+snowflake_account_name = parser.get("snowflake_credentials", "account_name")
 
 snow_conn = snowflake.connector.connect(
-    user = username,
-    password = password,
-    account = account_name,
+    user = snowflake_username,
+    password = snowflake_password,
+    account = snowflake_account_name,
     database="mydbt",
     schema="de_bronze"
 )
