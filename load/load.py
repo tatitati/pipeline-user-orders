@@ -1,11 +1,5 @@
 #!/usr/local/bin/python3
-from io import BytesIO
-import boto3
-from pyspark.sql import SparkSession
-from pyspark import SparkContext
 import configparser
-import datetime
-import os
 import snowflake.connector
 
 parser = configparser.ConfigParser()
