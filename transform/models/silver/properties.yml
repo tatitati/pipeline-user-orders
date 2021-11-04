@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: debronze_rawtable
+    database: mydbt
+    schema: de_bronze
+    tables:
+      - name: raw_table
