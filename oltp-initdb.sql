@@ -21,7 +21,7 @@ create table orders(
     spent integer not null,
     status varchar(50) not null default 'processing',
     created_at datetime not null default CURRENT_TIMESTAMP,
-    update_at datetime default null,
+    updated_at datetime default null,
     primary key(id),
     foreign key (id_user) references users(id)
 );

@@ -28,6 +28,32 @@ snow_conn = snowflake.connector.connect(
     schema="de_bronze"
 )
 
+users_sql = """
+    select max(created_at) 
+    from "MYDBT"."DE_BRONZE"."USERS";
+"""
+
+orders_sql = """
+    select max(created_at) 
+    from "MYDBT"."DE_BRONZE"."ORDERS";
+"""
+users_last_ingestion: datetime.datetime = None
+orders_last_ingestion: datetime.datetime = None
+cur = snow_conn.cursor()
+cur.execute(users_sql)
+for (col1) in cur:
+    users_last_ingestion = col1[0]
+    break;
+cur.close()
+
+cur = snow_conn.cursor()
+cur.execute(orders_sql)
+for (col1) in cur:
+    orders_last_ingestion = col1[0]
+    break;
+
+cur.close()
+
 context = SparkContext(master="local[*]", appName="readJSON")
 
 
@@ -42,7 +68,7 @@ df_users = spark\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
     .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("query", "select * from users")\
+    .option("query", f'select * from users where updated_at > { users_last_ingestion.timestamp() }')\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
@@ -53,14 +79,13 @@ df_users.show()
 # +------+
 # |samuel|
 # +------+
-# df_users.write.parquet("extract/users.parquet")
 
 df_orders = spark\
     .read\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
     .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("dbtable", "orders")\
+    .option("query", f'select * from orders where updated_at > { orders_last_ingestion.timestamp() }')\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
@@ -73,8 +98,6 @@ df_orders.show()
 # |  2|      1|   20|2021-11-02 13:49:36|
 # |  3|      3|  100|2021-11-02 13:49:36|
 # +---+-------+-----+-------------------+
-# df_orders.write.parquet("extract/orders.parquet")
-
 
 s3 = boto3.resource(
     's3',
@@ -83,15 +106,17 @@ s3 = boto3.resource(
 )
 
 # upload users to s3
-out_buffer = BytesIO()
-df_users.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
-now = datetime.datetime.now()
-s3_file = f'users/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
-s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())
+if df_users.count() > 0:
+    out_buffer = BytesIO()
+    df_users.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+    now = datetime.datetime.now()
+    s3_file = f'users/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+    s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())
 
 # upload orders to s3
-out_buffer = BytesIO()
-df_orders.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
-now = datetime.datetime.now()
-s3_file = f'orders/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
-s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())
+if df_orders.count() > 0:
+    out_buffer = BytesIO()
+    df_orders.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+    now = datetime.datetime.now()
+    s3_file = f'orders/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+    s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())
