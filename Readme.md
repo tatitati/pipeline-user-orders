@@ -35,3 +35,6 @@ Parquet:
     FROM @s3pipelineusersorders/myfile.parquet
     (file_format => 'my_parquet_format');
     ```
+
+### Q: how do I init the dbt folder named transform?:
+    -> dbt init transform
