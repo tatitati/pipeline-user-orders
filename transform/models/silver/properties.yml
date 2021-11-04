@@ -1,8 +1,13 @@
 version: 2
 
 sources:
-  - name: debronze_rawtable
+  - name: debronze_users
     database: mydbt
     schema: de_bronze
     tables:
-      - name: raw_table
+      - name: users
+  - name: debronze_orders
+    database: mydbt
+    schema: de_bronze
+    tables:
+      - name: orders
