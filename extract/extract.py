@@ -64,15 +64,22 @@ df_orders.show()
 # df_orders.write.parquet("extract/orders.parquet")
 
 
-# upload (df_users only for now) parquet file to s3
 s3 = boto3.resource(
     's3',
     aws_access_key_id=access_key,
     aws_secret_access_key=secret_key
 )
 
+# upload users to s3
 out_buffer = BytesIO()
 df_users.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
 now = datetime.datetime.now()
-s3_file = f'{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+s3_file = f'users/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())
+
+# upload orders to s3
+out_buffer = BytesIO()
+df_orders.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+now = datetime.datetime.now()
+s3_file = f'orders/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
 s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())

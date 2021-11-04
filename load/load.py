@@ -14,12 +14,27 @@ snow_conn = snowflake.connector.connect(
     account = account_name
 )
 
-sql = """
-        COPY INTO "MYDBT"."DE_BRONZE".raw_table
+sql_users = """
+        COPY INTO "MYDBT"."DE_BRONZE".users
         from (
           select *,current_timestamp() 
-          from @s3pipelineusersorders
+          from @s3pipelineusersorders/users
         )
         pattern = '.*/.*[.]parquet'
         file_format = (type=PARQUET COMPRESSION=SNAPPY);
       """
+
+sql_orders= """
+        COPY INTO "MYDBT"."DE_BRONZE".orders
+        from (
+          select *,current_timestamp() 
+          from @s3pipelineusersorders/orders
+        )
+        pattern = '.*/.*[.]parquet'
+        file_format = (type=PARQUET COMPRESSION=SNAPPY);
+      """
+
+cur = snow_conn.cursor()
+cur.execute(sql_users)
+cur.execute(sql_orders)
+cur.close()
