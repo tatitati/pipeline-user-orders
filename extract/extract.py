@@ -7,6 +7,8 @@ import configparser
 import datetime
 import os
 import snowflake.connector
+from snowflake.connector import ProgrammingError
+
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars /Users/tati/lab/de/pipeline-user-orders/mysql-connector-java-8.0.12/mysql-connector-java-8.0.12.jar  pyspark-shell'
 
 parser = configparser.ConfigParser()
@@ -32,30 +34,34 @@ snow_conn = snowflake.connector.connect(
     schema="de_bronze"
 )
 
-users_sql = """
-    select max(created_at) 
-    from "MYDBT"."DE_BRONZE"."USERS";
-"""
+try:
+    users_sql = """
+        select max(created_at) 
+        from "MYDBT"."DE_BRONZE"."USERS";
+    """
 
-orders_sql = """
-    select max(created_at) 
-    from "MYDBT"."DE_BRONZE"."ORDERS";
-"""
-cur = snow_conn.cursor()
-cur.execute(users_sql)
-for (col1) in cur:
-    users_last_ingestion = col1[0]
-    break;
-cur.close()
+    orders_sql = """
+        select max(created_at) 
+        from "MYDBT"."DE_BRONZE"."ORDERS";
+    """
+    cur = snow_conn.cursor()
+    cur.execute(users_sql)
+    for (col1) in cur:
+        users_last_ingestion = col1[0]
+        break;
+    cur.close()
 
-cur = snow_conn.cursor()
-cur.execute(orders_sql)
-for (col1) in cur:
-    orders_last_ingestion = col1[0]
-    break;
-
-cur.close()
-
+    cur = snow_conn.cursor()
+    cur.execute(orders_sql)
+    for (col1) in cur:
+        orders_last_ingestion = col1[0]
+        break;
+except ProgrammingError as e:
+    print(e.msg)
+    users_last_ingestion = datetime.datetime(1000, 4, 13)
+    orders_last_ingestion = datetime.datetime(1000, 4, 13)
+finally:
+    cur.close()
 
 # extract data only since the last ingestion date
 context = SparkContext(master="local[*]", appName="readJSON")
@@ -71,7 +77,7 @@ df_users = spark\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
     .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("query", f'select * from users where updated_at > { users_last_ingestion.timestamp() }')\
+    .option("query", f'select * from users where updated_at > { users_last_ingestion.timestamp() } or created_at > { users_last_ingestion.timestamp() }')\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
@@ -88,7 +94,7 @@ df_orders = spark\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
     .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("query", f'select * from orders where updated_at > { orders_last_ingestion.timestamp() }')\
+    .option("query", f'select * from orders where updated_at > { orders_last_ingestion.timestamp() } or created_at > { orders_last_ingestion.timestamp() }')\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()

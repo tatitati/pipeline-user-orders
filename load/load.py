@@ -19,7 +19,7 @@ snow_conn = snowflake.connector.connect(
 sql_users = """
         COPY INTO "MYDBT"."DE_BRONZE".users
         from (
-          select *,current_timestamp() 
+          select *, current_timestamp(), concat('s3://pipelineusersorders/',METADATA$FILENAME), METADATA$FILE_ROW_NUMBER 
           from @s3pipelineusersorders/users
         )
         pattern = '.*/.*[.]parquet'
@@ -29,7 +29,7 @@ sql_users = """
 sql_orders= """
         COPY INTO "MYDBT"."DE_BRONZE".orders
         from (
-          select *,current_timestamp() 
+          select *, current_timestamp(), concat('s3://pipelineusersorders/',METADATA$FILENAME), METADATA$FILE_ROW_NUMBER 
           from @s3pipelineusersorders/orders
         )
         pattern = '.*/.*[.]parquet'

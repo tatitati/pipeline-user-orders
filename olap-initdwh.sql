@@ -16,9 +16,13 @@ CREATE OR REPLACE FILE FORMAT my_parquet_format
 
 CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".users(
   PARQUET_RAW VARIANT not null,
-  created_at datetime not null default CURRENT_TIMESTAMP()
+  created_at datetime not null default CURRENT_TIMESTAMP(),
+  filename varchar not null,
+  metadata_row_number integer not null
 );
 CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
   PARQUET_RAW VARIANT not null,
-  created_at datetime not null default CURRENT_TIMESTAMP()
+  created_at datetime not null default CURRENT_TIMESTAMP(),
+  filename varchar not null,
+  metadata_row_number integer not null
 );
