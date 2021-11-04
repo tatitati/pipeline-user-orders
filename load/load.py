@@ -24,7 +24,8 @@ sql = """
         COPY INTO "MYDBT"."DE_BRONZE".raw_table
         from (
           select *,current_timestamp() 
-          from @s3pipelineusersorders/2021-11-4/10_9_45.parquet
+          from @s3pipelineusersorders
         )
+        pattern = '.*/.*[.]parquet'
         file_format = (type=PARQUET COMPRESSION=SNAPPY);
       """
