@@ -17,6 +17,10 @@ Parquet:
 ### Q: I uploaded a parquet file to s3 (myfile.parquet). How can I see from snowflake what data contains this?:
 
     ```
+    CREATE STAGE "MYDBT"."DE_BRONZE".s3pipelineusersorders
+    URL = 's3://pipelineusersorders'
+    CREDENTIALS = (AWS_KEY_ID = 'XXXXX' AWS_SECRET_KEY = 'XXXXXXX');
+
     LIST @s3pipelineusersorders;
 
     CREATE OR REPLACE FILE FORMAT my_parquet_format

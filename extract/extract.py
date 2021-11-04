@@ -65,7 +65,7 @@ df_orders.show()
 # df_orders.write.parquet("extract/orders.parquet")
 
 
-# upload to s3
+# upload parquet file to s3
 s3 = boto3.resource(
     's3',
     aws_access_key_id=access_key,
