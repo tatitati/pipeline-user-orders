@@ -43,3 +43,9 @@ Parquet:
         dbt debug
         dbt run -m silver
     ```
+
+### should I upload a parquet file for users and another for orders?, or only one file as result of joins?
+
+    -> one per each:
+  - Orders can be updated at different times of Users
+  - One user can have multiple orders. We might fetch User information when we only need Order information, or the opposite. Performance issue, it add complexity
