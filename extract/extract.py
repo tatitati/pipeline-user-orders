@@ -20,6 +20,7 @@ snowflake_username = parser.get("snowflake_credentials", "username")
 snowflake_password = parser.get("snowflake_credentials", "password")
 snowflake_account_name = parser.get("snowflake_credentials", "account_name")
 
+# get date of the last ingestion date
 snow_conn = snowflake.connector.connect(
     user = snowflake_username,
     password = snowflake_password,
@@ -54,8 +55,9 @@ for (col1) in cur:
 
 cur.close()
 
-context = SparkContext(master="local[*]", appName="readJSON")
 
+# extract data only since the last ingestion date
+context = SparkContext(master="local[*]", appName="readJSON")
 
 spark = SparkSession\
     .builder\
@@ -99,6 +101,7 @@ df_orders.show()
 # |  3|      3|  100|2021-11-02 13:49:36|
 # +---+-------+-----+-------------------+
 
+# upload to s3
 s3 = boto3.resource(
     's3',
     aws_access_key_id=access_key,
