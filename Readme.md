@@ -1,4 +1,4 @@
-## learning
+## ELT implementation with python for EL and dbt for T
 
 ### Q: should I use csv or parquet?
 
