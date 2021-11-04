@@ -21,6 +21,9 @@ snowflake_password = parser.get("snowflake_credentials", "password")
 snowflake_account_name = parser.get("snowflake_credentials", "account_name")
 
 # get date of the last ingestion date
+users_last_ingestion: datetime.datetime = None
+orders_last_ingestion: datetime.datetime = None
+
 snow_conn = snowflake.connector.connect(
     user = snowflake_username,
     password = snowflake_password,
@@ -38,8 +41,6 @@ orders_sql = """
     select max(created_at) 
     from "MYDBT"."DE_BRONZE"."ORDERS";
 """
-users_last_ingestion: datetime.datetime = None
-orders_last_ingestion: datetime.datetime = None
 cur = snow_conn.cursor()
 cur.execute(users_sql)
 for (col1) in cur:
