@@ -37,4 +37,9 @@ Parquet:
     ```
 
 ### Q: how do I init the dbt folder named transform?:
-    -> dbt init transform
+
+    ```
+        dbt init transform
+        dbt debug
+        dbt run -m silver
+    ```
