@@ -1,3 +1,6 @@
+-- set UTC timezone
+alter account set TIMEZONE = 'Europe/London';a
+
 CREATE DATABASE mydbt;
 
 CREATE SCHEMA "MYDBT"."BRONZE";
