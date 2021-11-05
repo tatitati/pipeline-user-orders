@@ -77,7 +77,7 @@ df_users = spark\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
     .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("query", f'select * from users where updated_at > { users_last_ingestion.timestamp() } or created_at > { users_last_ingestion.timestamp() }')\
+    .option("query", f'select * from users where created_at > \'{ users_last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }\' or updated_at > \'{ users_last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }\'')\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
@@ -88,13 +88,12 @@ df_users.show()
 # +------+
 # |samuel|
 # +------+
-
 df_orders = spark\
     .read\
     .format("jdbc")\
     .option("url", "jdbc:mysql://localhost:3306/usersorders") \
     .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("query", f'select * from orders where updated_at > { orders_last_ingestion.timestamp() } or created_at > { orders_last_ingestion.timestamp() }')\
+    .option("query", f'select * from orders where created_at > \'{ orders_last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }\' or updated_at > \'{ orders_last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }\' ')\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
