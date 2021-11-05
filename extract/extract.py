@@ -23,8 +23,8 @@ snowflake_password = parser.get("snowflake_credentials", "password")
 snowflake_account_name = parser.get("snowflake_credentials", "account_name")
 
 # get date of the last ingestion date
-users_last_ingestion: datetime.datetime = None
-orders_last_ingestion: datetime.datetime = None
+users_last_ingestion: datetime.datetime = datetime.datetime(1000, 4, 13)
+orders_last_ingestion: datetime.datetime = datetime.datetime(1000, 4, 13)
 
 snow_conn = snowflake.connector.connect(
     user = snowflake_username,
@@ -47,19 +47,19 @@ try:
     cur = snow_conn.cursor()
     cur.execute(users_sql)
     for (col1) in cur:
-        users_last_ingestion = col1[0]
+        if col1[0] != None:
+            users_last_ingestion = col1[0]
         break;
     cur.close()
 
     cur = snow_conn.cursor()
     cur.execute(orders_sql)
     for (col1) in cur:
-        orders_last_ingestion = col1[0]
+        if col1[0] != None:
+            orders_last_ingestion = col1[0]
         break;
 except ProgrammingError as e:
     print(e.msg)
-    users_last_ingestion = datetime.datetime(1000, 4, 13)
-    orders_last_ingestion = datetime.datetime(1000, 4, 13)
 finally:
     cur.close()
 

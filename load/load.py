@@ -1,4 +1,11 @@
 #!/usr/local/bin/python3
+'''
+You can manually run this script, or using
+snowpipes (better solution because it autodected new
+files, you don't need to track any information abou what
+file was the last uploaded to s3
+'''
+
 import configparser
 import snowflake.connector
 

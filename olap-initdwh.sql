@@ -26,3 +26,30 @@ CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
   filename varchar not null,
   metadata_row_number integer not null
 );
+
+-- snowpipes
+create or replace pipe mydbt.de_bronze.users auto_ingest=true as
+        COPY INTO "MYDBT"."DE_BRONZE".users
+        from (
+          select
+            *,
+            current_timestamp(),
+            concat('s3://pipelineusersorders/',METADATA$FILENAME),
+            METADATA$FILE_ROW_NUMBER
+          from @s3pipelineusersorders/users
+        )
+        pattern = '.*/.*[.]parquet'
+        file_format = (type=PARQUET COMPRESSION=SNAPPY);
+
+create or replace pipe mydbt.de_bronze.orders auto_ingest=true as
+        COPY INTO "MYDBT"."DE_BRONZE".orders
+        from (
+          select
+            *,
+            current_timestamp(),
+            concat('s3://pipelineusersorders/',METADATA$FILENAME),
+            METADATA$FILE_ROW_NUMBER
+          from @s3pipelineusersorders/orders
+        )
+        pattern = '.*/.*[.]parquet'
+        file_format = (type=PARQUET COMPRESSION=SNAPPY);
