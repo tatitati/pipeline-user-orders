@@ -7,6 +7,7 @@ import configparser
 import datetime
 import os
 import snowflake.connector
+from pyspark.sql.functions import col, lit
 from snowflake.connector import ProgrammingError
 
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars /Users/tati/lab/de/pipeline-user-orders/mysql-connector-java-8.0.12/mysql-connector-java-8.0.12.jar  pyspark-shell'
@@ -81,8 +82,16 @@ df_users = spark\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
-
-df_users.show()
+# CONVERTING TO PARQUET IS BUGGER regarding to timestamps, is generaring invalid timestamps, SO I CHANGING THE COLUMN TO STRING
+df_users_new = df_users\
+    .withColumn("New_Column", col('created_at').cast("String"))\
+    .drop("created_at")\
+    .withColumnRenamed("New_Column", "created_at")
+df_users_new = df_users_new\
+    .withColumn("New_Column", col('updated_at').cast("String"))\
+    .drop("updated_at")\
+    .withColumnRenamed("New_Column", "updated_at")
+df_users_new.show()
 # +------+
 # |  name|
 # +------+
@@ -98,7 +107,10 @@ df_orders = spark\
     .option("password", oltp_password)\
     .load()
 
-df_orders.show()
+# CONVERTING TO PARQUET IS BUGGER, SO I CHANGING THE COLUMN TO STRING
+df_orders_new = df_orders.withColumn("New_Column", col('created_at').cast("String")).drop("created_at").withColumnRenamed("New_Column", "created_at")
+
+df_orders_new.show()
 # +---+-------+-----+-------------------+
 # | id|id_user|spent|         created_at|
 # +---+-------+-----+-------------------+
@@ -106,7 +118,7 @@ df_orders.show()
 # |  2|      1|   20|2021-11-02 13:49:36|
 # |  3|      3|  100|2021-11-02 13:49:36|
 # +---+-------+-----+-------------------+
-
+#
 # upload to s3
 s3 = boto3.resource(
     's3',
@@ -119,7 +131,7 @@ if df_users.count() > 0:
     now = datetime.datetime.now()
 
     out_buffer = BytesIO()
-    df_users.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+    df_users_new.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
     s3\
         .Object(
             bucket_name,
@@ -131,7 +143,7 @@ if df_orders.count() > 0:
     now = datetime.datetime.now()
 
     out_buffer = BytesIO()
-    df_orders.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+    df_orders_new.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
 
     s3\
         .Object(
