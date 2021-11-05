@@ -116,16 +116,25 @@ s3 = boto3.resource(
 
 # upload users to s3
 if df_users.count() > 0:
+    now = datetime.datetime.now()
+
     out_buffer = BytesIO()
     df_users.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
-    now = datetime.datetime.now()
-    s3_file = f'users/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
-    s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())
+    s3\
+        .Object(
+            bucket_name,
+            f'users/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet')\
+        .put(Body=out_buffer.getvalue())
 
 # upload orders to s3
 if df_orders.count() > 0:
+    now = datetime.datetime.now()
+
     out_buffer = BytesIO()
     df_orders.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
-    now = datetime.datetime.now()
-    s3_file = f'orders/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
-    s3.Object(bucket_name, s3_file).put(Body=out_buffer.getvalue())
+
+    s3\
+        .Object(
+            bucket_name,
+            f'orders/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet')\
+        .put(Body=out_buffer.getvalue())
