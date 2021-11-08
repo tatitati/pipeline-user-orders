@@ -1,8 +1,16 @@
+{{ config(materialized='incremental') }}
+
 select
     parquet_raw:id::Integer as order_id,
     parquet_raw:id_user::Integer as id_user,
     parquet_raw:spent::Integer as spent,
     parquet_raw:status::String as status,
-    parquet_raw:created_at::TIMESTAMP as created_at,
-    parquet_raw:updated_at::TIMESTAMP as updated_at
+    parquet_raw:created_at::TIMESTAMP as ordered_at,
+    parquet_raw:updated_at::TIMESTAMP as updated_at,
+    created_at::TIMESTAMP as copied_at,
+    CURRENT_TIMESTAMP as dbt_at
 from {{ source('bronze', 'orders') }}
+
+{% if is_incremental() %}
+    where copied_at > (select max(copied_at) from {{ this }})
+{% endif %}
