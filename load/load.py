@@ -24,6 +24,7 @@ snow_conn = snowflake.connector.connect(
 )
 
 sql_users = """
+        truncate table if exists "MYDBT"."DE_BRONZE".users;
         COPY INTO "MYDBT"."DE_BRONZE".users
         from (
           select 
@@ -38,6 +39,7 @@ sql_users = """
       """
 
 sql_orders= """
+        truncate table if exists "MYDBT"."DE_BRONZE".orders;
         COPY INTO "MYDBT"."DE_BRONZE".orders
         from (
           select 

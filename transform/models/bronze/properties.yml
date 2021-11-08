@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: mydbt
+    schema: de_bronze
+    tables:
+      - name: users
+      - name: orders
+
