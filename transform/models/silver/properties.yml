@@ -1,13 +1,10 @@
 version: 2
 
 sources:
-  - name: debronze_users
+  - name: desilver
     database: mydbt
-    schema: de_bronze
+    schema: de_silver
     tables:
-      - name: users
-  - name: debronze_orders
-    database: mydbt
-    schema: de_bronze
-    tables:
-      - name: orders
+      - name: users_extract_cast
+      - name: orders_extract_cast
+
