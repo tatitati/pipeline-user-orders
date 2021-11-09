@@ -3,7 +3,9 @@ alter account set TIMEZONE = 'Europe/London';a
 
 CREATE DATABASE mydbt;
 
+--
 -- schema bronze
+--
 CREATE SCHEMA "MYDBT"."BRONZE";
 CREATE STAGE "MYDBT"."DE_BRONZE".s3pipelineusersorders
     URL = 's3://pipelineusersorders'
@@ -52,7 +54,9 @@ CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
   metadata_row_number integer not null
 );
 
+--
 -- schema silver
+--
 CREATE SCHEMA "MYDBT"."SILVER";
 
 CREATE OR REPLACE STREAM stream_orders_extract_cast ON TABLE "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST";
@@ -69,7 +73,9 @@ create or replace TABLE "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" (
 	DBT_AT TIMESTAMP_LTZ(9)
 );
 
+--
 -- schema gold
+--
 CREATE SCHEMA "MYDBT"."GOLD";
 
 create or replace TABLE "MYDBT"."DE_GOLD"."DIM_USER" (
