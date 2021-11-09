@@ -161,50 +161,50 @@ if df_orders.count() > 0:
         .put(Body=out_buffer.getvalue())
 
 # load into snowflake
-snow_conn = snowflake.connector.connect(
-    user = snowflake_username,
-    password = snowflake_password,
-    account = snowflake_account_name,
-    database="mydbt",
-    schema="de_bronze"
-)
-
-users_truncate="""truncate table if exists "MYDBT"."DE_BRONZE".users;"""
-orders_truncate="""truncate table if exists "MYDBT"."DE_BRONZE".orders;"""
-sql_users = """        
-        COPY INTO "MYDBT"."DE_BRONZE".users
-        from (
-          select 
-            *, 
-            current_timestamp(), 
-            concat('s3://pipelineusersorders/',METADATA$FILENAME), 
-            METADATA$FILE_ROW_NUMBER 
-          from @s3pipelineusersorders/%s
-        )
-        pattern = '.*/.*[.]parquet'
-        file_format = (type=PARQUET COMPRESSION=SNAPPY);
-      """
-
-sql_orders= """        
-        COPY INTO "MYDBT"."DE_BRONZE".orders
-        from (
-          select 
-            *, 
-            current_timestamp(), 
-            concat('s3://pipelineusersorders/',METADATA$FILENAME), 
-            METADATA$FILE_ROW_NUMBER 
-          from @s3pipelineusersorders/%s
-        )
-        pattern = '.*/.*[.]parquet'
-        file_format = (type=PARQUET COMPRESSION=SNAPPY);
-      """
-
-cur = snow_conn.cursor()
-
-# cur.execute(users_truncate)
-# cur.execute(orders_truncate)
-if df_users.count() > 0:
-    cur.execute(sql_users % (users_filename))
-if df_orders.count() > 0:
-    cur.execute(sql_orders % (orders_filename))
-cur.close()
+# snow_conn = snowflake.connector.connect(
+#     user = snowflake_username,
+#     password = snowflake_password,
+#     account = snowflake_account_name,
+#     database="mydbt",
+#     schema="de_bronze"
+# )
+#
+# users_truncate="""truncate table if exists "MYDBT"."DE_BRONZE".users;"""
+# orders_truncate="""truncate table if exists "MYDBT"."DE_BRONZE".orders;"""
+# sql_users = """
+#         COPY INTO "MYDBT"."DE_BRONZE".users
+#         from (
+#           select
+#             *,
+#             current_timestamp(),
+#             concat('s3://pipelineusersorders/',METADATA$FILENAME),
+#             METADATA$FILE_ROW_NUMBER
+#           from @s3pipelineusersorders/%s
+#         )
+#         pattern = '.*/.*[.]parquet'
+#         file_format = (type=PARQUET COMPRESSION=SNAPPY);
+#       """
+#
+# sql_orders= """
+#         COPY INTO "MYDBT"."DE_BRONZE".orders
+#         from (
+#           select
+#             *,
+#             current_timestamp(),
+#             concat('s3://pipelineusersorders/',METADATA$FILENAME),
+#             METADATA$FILE_ROW_NUMBER
+#           from @s3pipelineusersorders/%s
+#         )
+#         pattern = '.*/.*[.]parquet'
+#         file_format = (type=PARQUET COMPRESSION=SNAPPY);
+#       """
+#
+# cur = snow_conn.cursor()
+#
+# # cur.execute(users_truncate)
+# # cur.execute(orders_truncate)
+# if df_users.count() > 0:
+#     cur.execute(sql_users % (users_filename))
+# if df_orders.count() > 0:
+#     cur.execute(sql_orders % (orders_filename))
+# cur.close()
