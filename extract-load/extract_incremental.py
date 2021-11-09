@@ -108,7 +108,14 @@ df_orders = spark\
     .load()
 
 # CONVERTING TO PARQUET IS BUGGER, SO I CHANGING THE COLUMN TO STRING
-df_orders_new = df_orders.withColumn("New_Column", col('created_at').cast("String")).drop("created_at").withColumnRenamed("New_Column", "created_at")
+df_orders_new = df_orders\
+    .withColumn("New_Column", col('created_at').cast("String"))\
+    .drop("created_at")\
+    .withColumnRenamed("New_Column", "created_at")
+df_orders_new = df_orders_new\
+    .withColumn("New_Column", col('updated_at').cast("String"))\
+    .drop("updated_at")\
+    .withColumnRenamed("New_Column", "updated_at")
 
 df_orders_new.show()
 # +---+-------+-----+-------------------+
