@@ -2,7 +2,7 @@ BEGIN;
     merge into MYDBT.DE_GOLD.DIM_ORDERSTATUS dos
         using (
             select *
-            from stream_orders_extract_cast__status
+            from stream_ordersstatus_deduplicated
             where metadata$action='INSERT' -- on update we have one delete + one insert
         ) soec__s
         on soec__s.order_id = dos.order_id
@@ -15,7 +15,7 @@ BEGIN;
 
     insert into "MYDBT"."DE_GOLD"."DIM_ORDERSTATUS"(order_id, status, valid_from, IS_EFFECTIVE)
         select order_id, status, current_timestamp, TRUE
-        from  stream_orders_extract_cast__status
+        from  stream_ordersstatus_deduplicated
         where
               metadata$action='INSERT' and
               metadata$isupdate=TRUE;

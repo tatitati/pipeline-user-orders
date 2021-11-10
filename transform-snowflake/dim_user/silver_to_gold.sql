@@ -2,7 +2,7 @@ BEGIN;
       merge into "MYDBT"."DE_GOLD"."DIM_USER" dim_user
             using (
               select *
-              from stream_users_extract_cast
+              from stream_users_deduplicated
               where metadata$action='INSERT'
             ) s
             on s.USER_ID = dim_user.user_id
@@ -18,6 +18,6 @@ BEGIN;
       -- add user updates to dim_user
       insert into "MYDBT"."DE_GOLD"."DIM_USER"(user_id, address, age, name, registered_at, valid_from, is_effective)
               select user_id, address, age, name, registered_at, current_timestamp(), TRUE
-              from stream_users_extract_cast
+              from stream_users_deduplicated
               where metadata$action='INSERT' and metadata$isupdate=TRUE;
 COMMIT;

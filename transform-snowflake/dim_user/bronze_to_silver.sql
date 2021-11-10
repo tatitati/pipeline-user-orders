@@ -1,7 +1,7 @@
 -- our table "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" has associated an stream, so we extract fields, cast and merge into this table.
 -- After merging into this table our streams will show if is an update/insert/delete in an SCD-2 flavour
 BEGIN;
-    merge into "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" uec
+    merge into "MYDBT"."DE_SILVER"."USERS_DEDUPLICATED" uec
     using (
             select
               parquet_raw:id::Integer as user_id,
@@ -15,7 +15,7 @@ BEGIN;
           from "MYDBT"."DE_BRONZE"."USERS"
           where
               created_at <= CURRENT_TIMESTAMP and
-              created_at > (select coalesce(max(copied_at), '1900-01-01 00:00:00') from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST")
+              created_at > (select coalesce(max(copied_at), '1900-01-01 00:00:00') from "MYDBT"."DE_SILVER"."USERS_DEDUPLICATED")
           ) s
       on s.USER_ID = uec.user_id
       when matched then
