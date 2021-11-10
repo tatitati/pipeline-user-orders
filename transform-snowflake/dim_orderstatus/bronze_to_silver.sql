@@ -4,7 +4,7 @@ BEGIN;
         select
           parquet_raw:id::Integer as order_id,
           parquet_raw:created_at::TIMESTAMP as ordered_at,
-          parquet_raw:id_ser::Integer as id_user,
+          parquet_raw:id_user::Integer as id_user,
           parquet_raw:spent::Integer as spent,
           parquet_raw:status::String as status,
           CURRENT_TIMESTAMP as updated_at,
