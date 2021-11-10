@@ -19,6 +19,7 @@ create or replace pipe mydbt.de_bronze.users auto_ingest=true as
         from (
           select
             *,
+            md5(*), -- to manage duplicates
             current_timestamp(),
             concat('s3://pipelineusersorders/',METADATA$FILENAME),
             METADATA$FILE_ROW_NUMBER
@@ -32,6 +33,7 @@ create or replace pipe mydbt.de_bronze.orders auto_ingest=true as
         from (
           select
             *,
+            md5(*), -- to manage duplicates
             current_timestamp(),
             concat('s3://pipelineusersorders/',METADATA$FILENAME),
             METADATA$FILE_ROW_NUMBER
