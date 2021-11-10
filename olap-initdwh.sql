@@ -91,7 +91,7 @@ create or replace TABLE "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST" (
 CREATE SCHEMA "MYDBT"."GOLD";
 
 create or replace TABLE "MYDBT"."DE_GOLD"."DIM_USER" (
-    id number not null autoincrement, -- surrogate key
+    id number not null autoincrement primary key , -- surrogate key
 	USER_ID NUMBER(38,0),
 	ADDRESS VARCHAR(16777216),
 	AGE NUMBER(38,0),
@@ -108,3 +108,14 @@ create or replace table "MYDBT"."DE_GOLD"."DIM_ORDERSTATUS" (
       valid_from datetime not null default current_timestamp(),
       is_effective boolean not null default TRUE
 );
+
+create or replace table MYDBT.DE_GOLD.DIM_ORDERS (
+    id number not null autoincrement primary key, -- foreign key
+    order_id number not null,
+    orderstatus_id number not null,
+    orderuser_id number not null,
+    ordered_at datetime not null,
+
+    foreign key (orderstatus_id) references MYDBT.DE_GOLD.DIM_ORDERSTATUS(id),
+    foreign key (orderuser_id) references MYDBT.DE_GOLD.DIM_USER(id)
+)
