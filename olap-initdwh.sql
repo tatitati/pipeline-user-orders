@@ -101,10 +101,10 @@ create or replace TABLE "MYDBT"."DE_GOLD"."DIM_USER" (
     IS_EFFECTIVE BOOLEAN default TRUE
 );
 
-create or replace TABLE "MYDBT"."DE_GOLD"."DIM_ORDERSTATUS" (
-    id number not null autoincrement, -- surrogate key
-	ORDER_ID NUMBER(38,0),
-	STATUS VARCHAR(16777216),
-	VALID_FROM TIMESTAMP_NTZ(9) default current_timestamp(),
-    IS_EFFECTIVE BOOLEAN default TRUE
+create or replace table "MYDBT"."DE_GOLD"."DIM_ORDERSTATUS" (
+      id number not null autoincrement primary key , -- surrogate key
+      ORDER_ID number not null,
+      status varchar(50) not null,
+      valid_from datetime not null default current_timestamp(),
+      is_effective boolean not null default TRUE
 );
