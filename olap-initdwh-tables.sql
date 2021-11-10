@@ -7,6 +7,7 @@ CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".users(
   source varchar not null,
   metadata_row_number integer not null
 );
+
 CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
   PARQUET_RAW VARIANT not null,
   md5 varchar(100) not null,
@@ -14,7 +15,6 @@ CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
   source varchar not null,
   metadata_row_number integer not null
 );
-
 
 create or replace TABLE "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" (
 	USER_ID NUMBER(38,0),
