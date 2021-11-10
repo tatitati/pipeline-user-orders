@@ -38,6 +38,26 @@ create or replace TABLE "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST" (
 	DBT_AT TIMESTAMP_LTZ(9)
 );
 
+create table "MYDBT"."DE_SILVER"."ORDERS_DEDUPLICATED"(
+    order_id number not null,
+    id_user number not null,
+    spent number not null,
+    status varchar not null,
+    ordered_at timestamp not null,
+    updated_at timestamp not null,
+    copied_at timestamp not null
+);
+
+create table "MYDBT"."DE_SILVER"."USERS_DEDUPLICATED"(
+    user_id number not null,
+    address varchar not null,
+    age number not null,
+    name varchar not null,
+    registered_at timestamp not null,
+    updated_at timestamp not null,
+    copied_at timestamp not null
+);
+
 create or replace TABLE "MYDBT"."DE_GOLD"."DIM_USER" (
     id number not null autoincrement primary key , -- surrogate key
 	USER_ID NUMBER(38,0),
