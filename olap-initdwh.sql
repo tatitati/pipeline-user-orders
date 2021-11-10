@@ -109,7 +109,7 @@ create or replace table "MYDBT"."DE_GOLD"."DIM_ORDERSTATUS" (
       is_effective boolean not null default TRUE
 );
 
-create or replace table MYDBT.DE_GOLD.DIM_ORDERS (
+create or replace table MYDBT.DE_GOLD.FACT_ORDERS (
     id number not null autoincrement primary key, -- foreign key
     order_id number not null,
     orderstatus_id number not null,
