@@ -31,6 +31,3 @@ BEGIN;
         values(s.order_id, s.id_user, s.spent, s.status, s.ordered_at, s.updated_at, s.copied_at, s.dbt_at);
 
 COMMIT;
-
--- select * from stream_orders_extract_cast__status;
--- select * from stream_orders_extract_cast;
