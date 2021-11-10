@@ -4,14 +4,14 @@ CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".users(
   PARQUET_RAW VARIANT not null,
   md5 varchar(100) not null,
   created_at datetime not null default CURRENT_TIMESTAMP(),
-  filename varchar not null,
+  source varchar not null,
   metadata_row_number integer not null
 );
 CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
   PARQUET_RAW VARIANT not null,
   md5 varchar(100) not null,
   created_at datetime not null default CURRENT_TIMESTAMP(),
-  filename varchar not null,
+  source varchar not null,
   metadata_row_number integer not null
 );
 
