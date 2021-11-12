@@ -10,7 +10,13 @@ import snowflake.connector
 from pyspark.sql.functions import col, lit
 from snowflake.connector import ProgrammingError
 
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars /Users/tati/lab/de/pipeline-user-orders/mysql-connector-java-8.0.12/mysql-connector-java-8.0.12.jar  pyspark-shell'
+jarPath='/Users/tati/lab/de/pipeline-user-orders/jar'
+jars = [
+    f'{jarPath}/mysql-connector-java-8.0.12/mysql-connector-java-8.0.12.jar',
+    f'{jarPath}/snowflake-jdbc-3.13.10.jar',
+    f'{jarPath}/spark-snowflake_2.11-2.9.2-spark_2.4.jar',
+]
+os.environ['PYSPARK_SUBMIT_ARGS'] = f'--jars {",".join(jars)}  pyspark-shell'
 
 parser = configparser.ConfigParser()
 parser.read("../pipeline.conf")
@@ -23,7 +29,7 @@ snowflake_username = parser.get("snowflake_credentials", "username")
 snowflake_password = parser.get("snowflake_credentials", "password")
 snowflake_account_name = parser.get("snowflake_credentials", "account_name")
 
-# get date of the last ingestion date
+# get date of the last ingestion date from
 users_last_ingestion: datetime.datetime = datetime.datetime(1000, 4, 13)
 orders_last_ingestion: datetime.datetime = datetime.datetime(1000, 4, 13)
 
@@ -125,37 +131,70 @@ df_orders_new.show()
 # |  2|      1|   20|2021-11-02 13:49:36|
 # |  3|      3|  100|2021-11-02 13:49:36|
 # +---+-------+-----+-------------------+
+
+# save in snowflake: current_load stage
+SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
+sfOptions = {
+    "sfURL": f'{snowflake_account_name}.snowflakecomputing.com/',
+    "sfUser": snowflake_username,
+    "sfPassword": snowflake_password,
+    "sfDatabase": "mydbt",
+    "sfSchema": "de_bronze",
+    "sfWarehouse": "COMPUTE_WH",
+    "parallelism": "64"
+}
+
+
+# can I read?
+dfresult = spark.read.format(SNOWFLAKE_SOURCE_NAME) \
+  .options(**sfOptions) \
+  .option("query",  "select 1 as my_num") \
+  .load()
+
+dfresult.show()
 #
-# upload to s3
-s3 = boto3.resource(
-    's3',
-    aws_access_key_id=access_key,
-    aws_secret_access_key=secret_key
-)
+# # can I write?
+# df_orders_new.write\
+#     .format(SNOWFLAKE_SOURCE_NAME)\
+#     .options(**sfOptions)\
+#     .option("dbtable", "df_orders_new")\
+#     .mode("append")\
+#     .save()
 
-# upload users to s3
-now = datetime.datetime.now()
-orders_filename=f'orders/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
-users_filename=f'users/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+# apply MINUS to deduplicate
 
-if df_users.count() > 0:
-    now = datetime.datetime.now()
 
-    out_buffer = BytesIO()
-    df_users_new.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
-    s3\
-        .Object(
-            bucket_name,
-            users_filename)\
-        .put(Body=out_buffer.getvalue())
 
-# upload orders to s3
-if df_orders.count() > 0:
-    out_buffer = BytesIO()
-    df_orders_new.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
-
-    s3\
-        .Object(
-            bucket_name,
-            orders_filename)\
-        .put(Body=out_buffer.getvalue())
+# # upload resulting MINUS to s3
+# s3 = boto3.resource(
+#     's3',
+#     aws_access_key_id=access_key,
+#     aws_secret_access_key=secret_key
+# )
+#
+# # upload users to s3
+# now = datetime.datetime.now()
+# orders_filename=f'orders/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+# users_filename=f'users/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+#
+# if df_users.count() > 0:
+#     now = datetime.datetime.now()
+#
+#     out_buffer = BytesIO()
+#     df_users_new.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+#     s3\
+#         .Object(
+#             bucket_name,
+#             users_filename)\
+#         .put(Body=out_buffer.getvalue())
+#
+# # upload orders to s3
+# if df_orders.count() > 0:
+#     out_buffer = BytesIO()
+#     df_orders_new.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+#
+#     s3\
+#         .Object(
+#             bucket_name,
+#             orders_filename)\
+#         .put(Body=out_buffer.getvalue())

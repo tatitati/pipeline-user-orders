@@ -1,9 +1,11 @@
 pyfunctional
-jsonschema
+jsonschema==3.0.1
 pyspark
 numpy
+pyarrow
 certifi
 json-flatten
 pandas
+botocore==1.20.106
 boto3
 snowflake-connector-python
