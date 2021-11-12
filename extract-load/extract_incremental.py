@@ -8,6 +8,7 @@ import datetime
 import os
 import snowflake.connector
 from pyspark.sql.functions import col, lit
+from pyspark.sql.types import StructType, StructField, IntegerType, DateType, TimestampType, StringType
 from snowflake.connector import ProgrammingError
 
 jarPath='/Users/tati/lab/de/pipeline-user-orders/jars'
@@ -91,6 +92,50 @@ df_users = spark\
     .option("password", oltp_password)\
     .load()
 
+df_users.show()
+
+df_orders = spark\
+    .read\
+    .format("jdbc")\
+    .option("url", "jdbc:mysql://localhost:3306/usersorders") \
+    .option("driver", "com.mysql.cj.jdbc.Driver")\
+    .option("query", f'select * from orders where created_at > \'{ orders_last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }\' or updated_at > \'{ orders_last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }\' ')\
+    .option("user", oltp_username)\
+    .option("password", oltp_password)\
+    .load()
+df_orders.show()
+
+# save in snowflake: current_load stage
+SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
+sfOptions = {
+    "sfURL": f'{snowflake_account_name}.snowflakecomputing.com/',
+    "sfUser": snowflake_username,
+    "sfPassword": snowflake_password,
+    "sfDatabase": "mydbt",
+    "sfSchema": "de_bronze",
+    "sfWarehouse": "COMPUTE_WH",
+    "parallelism": "64"
+}
+
+if df_orders.count() > 0:
+    df_orders.printSchema()
+    df_orders.write\
+        .format(SNOWFLAKE_SOURCE_NAME)\
+        .options(**sfOptions)\
+        .option("dbtable", "orders_extract_current")\
+        .mode("append")\
+        .save()
+
+if df_users.count() > 0:
+    df_users.printSchema()
+    df_users.write\
+        .format(SNOWFLAKE_SOURCE_NAME)\
+        .options(**sfOptions)\
+        .option("dbtable", "users_extract_current")\
+        .mode("append")\
+        .save()
+
+# convert to parquet and upload to s3
 # CONVERTING TO PARQUET IS BUGGER regarding to timestamps, is generaring invalid timestamps, SO I CHANGING THE COLUMN TO STRING
 df_users_new = df_users\
     .withColumn("New_Column", col('created_at').cast("String"))\
@@ -101,22 +146,7 @@ df_users_new = df_users_new\
     .drop("updated_at")\
     .withColumnRenamed("New_Column", "updated_at")
 df_users_new.show()
-# +------+
-# |  name|
-# +------+
-# |samuel|
-# +------+
-df_orders = spark\
-    .read\
-    .format("jdbc")\
-    .option("url", "jdbc:mysql://localhost:3306/usersorders") \
-    .option("driver", "com.mysql.cj.jdbc.Driver")\
-    .option("query", f'select * from orders where created_at > \'{ orders_last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }\' or updated_at > \'{ orders_last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }\' ')\
-    .option("user", oltp_username)\
-    .option("password", oltp_password)\
-    .load()
 
-# CONVERTING TO PARQUET IS BUGGER, SO I CHANGING THE COLUMN TO STRING
 df_orders_new = df_orders\
     .withColumn("New_Column", col('created_at').cast("String"))\
     .drop("created_at")\
@@ -135,35 +165,7 @@ df_orders_new.show()
 # |  3|      3|  100|2021-11-02 13:49:36|
 # +---+-------+-----+-------------------+
 
-# save in snowflake: current_load stage
-SNOWFLAKE_SOURCE_NAME = "net.snowflake.spark.snowflake"
-sfOptions = {
-    "sfURL": f'{snowflake_account_name}.snowflakecomputing.com/',
-    "sfUser": snowflake_username,
-    "sfPassword": snowflake_password,
-    "sfDatabase": "mydbt",
-    "sfSchema": "de_bronze",
-    "sfWarehouse": "COMPUTE_WH",
-    "parallelism": "64"
-}
 
-
-# can I read?
-# dfresult = spark.read.format(SNOWFLAKE_SOURCE_NAME) \
-#   .options(**sfOptions) \
-#   .option("query",  "select 1 as my_num") \
-#   .load()
-#
-# dfresult.show()
-#
-# # can I write?
-if df_orders_new.count() > 0:
-    df_orders_new.write\
-        .format(SNOWFLAKE_SOURCE_NAME)\
-        .options(**sfOptions)\
-        .option("dbtable", "df_orders_new")\
-        .mode("append")\
-        .save()
 
 # apply MINUS to deduplicate
 

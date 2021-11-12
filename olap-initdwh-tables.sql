@@ -16,6 +16,24 @@ CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
   metadata_row_number integer not null
 );
 
+create or replace table orders_extract_current(
+    id number not null,
+    id_user number not null,
+    spent number not null,
+    status varchar not null,
+    created_at datetime not null,
+    updated_at datetime
+);
+
+create or replace table users_extract_current(
+    id number not null,
+    name varchar not null,
+    age number not null,
+    address varchar not null,
+    created_at datetime not null,
+    updated_at datetime
+);
+
 create or replace TABLE "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" (
 	USER_ID NUMBER(38,0),
 	ADDRESS VARCHAR(16777216),
