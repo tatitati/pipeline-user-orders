@@ -223,3 +223,22 @@ if df_orders_new.count() > 0:
             orders_filename)\
         .put(Body=out_buffer.getvalue())
 
+# swap current and previous tables
+sql_truncate_users_previous = """
+    truncate users_extract_previous;
+"""
+sql_truncate_orders_previous = """
+    truncate orders_extract_previous;
+"""
+sql_swap_orders = """
+    ALTER TABLE orders_extract_previous SWAP WITH orders_extract_current;
+"""
+sql_swap_users = """
+    ALTER TABLE users_extract_previous SWAP WITH users_extract_current;
+"""
+cur = snow_conn.cursor()
+cur.execute(sql_truncate_users_previous)
+cur.execute(sql_truncate_orders_previous)
+cur.execute(sql_swap_orders)
+cur.execute(sql_swap_users)
+cur.close()
