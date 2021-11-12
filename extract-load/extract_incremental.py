@@ -92,8 +92,6 @@ df_users = spark\
     .option("password", oltp_password)\
     .load()
 
-df_users.show()
-
 df_orders = spark\
     .read\
     .format("jdbc")\
@@ -103,6 +101,9 @@ df_orders = spark\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
+
+print("current:")
+df_users.show()
 df_orders.show()
 
 # save in snowflake: current_load stage
@@ -118,7 +119,6 @@ sfOptions = {
 }
 
 if df_orders.count() > 0:
-    df_orders.printSchema()
     df_orders.write\
         .format(SNOWFLAKE_SOURCE_NAME)\
         .options(**sfOptions)\
@@ -127,7 +127,6 @@ if df_orders.count() > 0:
         .save()
 
 if df_users.count() > 0:
-    df_users.printSchema()
     df_users.write\
         .format(SNOWFLAKE_SOURCE_NAME)\
         .options(**sfOptions)\
@@ -135,9 +134,33 @@ if df_users.count() > 0:
         .mode("append")\
         .save()
 
+# get previous
+df_orders_previous = spark.read.format(SNOWFLAKE_SOURCE_NAME) \
+  .options(**sfOptions) \
+  .option("query",  "select * from ORDERS_EXTRACT_PREVIOUS") \
+  .load()
+
+df_users_previous = spark.read.format(SNOWFLAKE_SOURCE_NAME) \
+  .options(**sfOptions) \
+  .option("query",  "select * from USERS_EXTRACT_PREVIOUS") \
+  .load()
+
+print("previous:")
+df_users_previous.show()
+df_orders_previous.show()
+
+# current MINUS previous
+df_orders_deduplicated = df_orders.subtract(df_orders_previous)
+df_users_deduplicated = df_users.subtract(df_users_previous)
+
+print("deduplicated:")
+df_orders_deduplicated.show()
+df_users_deduplicated.show()
+
+# upload resulting MINUS to s3
 # convert to parquet and upload to s3
 # CONVERTING TO PARQUET IS BUGGER regarding to timestamps, is generaring invalid timestamps, SO I CHANGING THE COLUMN TO STRING
-df_users_new = df_users\
+df_users_new = df_users_deduplicated\
     .withColumn("New_Column", col('created_at').cast("String"))\
     .drop("created_at")\
     .withColumnRenamed("New_Column", "created_at")
@@ -147,7 +170,7 @@ df_users_new = df_users_new\
     .withColumnRenamed("New_Column", "updated_at")
 df_users_new.show()
 
-df_orders_new = df_orders\
+df_orders_new = df_orders_deduplicated\
     .withColumn("New_Column", col('created_at').cast("String"))\
     .drop("created_at")\
     .withColumnRenamed("New_Column", "created_at")
@@ -156,7 +179,9 @@ df_orders_new = df_orders_new\
     .drop("updated_at")\
     .withColumnRenamed("New_Column", "updated_at")
 
+print("uploading to s3:")
 df_orders_new.show()
+df_users_new.show()
 # +---+-------+-----+-------------------+
 # | id|id_user|spent|         created_at|
 # +---+-------+-----+-------------------+
@@ -166,19 +191,12 @@ df_orders_new.show()
 # +---+-------+-----+-------------------+
 
 
-
-# apply MINUS to deduplicate
-
-
-
-# upload resulting MINUS to s3
 s3 = boto3.resource(
     's3',
     aws_access_key_id=access_key,
     aws_secret_access_key=secret_key
 )
 
-# upload users to s3
 now = datetime.datetime.now()
 orders_filename=f'orders/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
 users_filename=f'users/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
@@ -204,3 +222,4 @@ if df_orders_new.count() > 0:
             bucket_name,
             orders_filename)\
         .put(Body=out_buffer.getvalue())
+
