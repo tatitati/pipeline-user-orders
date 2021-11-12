@@ -13,10 +13,10 @@ from snowflake.connector import ProgrammingError
 jarPath='/Users/tati/lab/de/pipeline-user-orders/jars'
 jars = [
     # spark-mysql
-    f'{jarPath}/mysql-connector-java-8.0.12.jar',
+    f'{jarPath}/spark-mysql/mysql-connector-java-8.0.12.jar',
     # spark-snowflake
-    f'{jarPath}/snowflake-jdbc-3.13.10.jar',    
-    f'{jarPath}/spark-snowflake_2.12-2.9.2-spark_3.1.jar', # scala 2.12 + pyspark 3.1
+    f'{jarPath}/spark-snowflake/snowflake-jdbc-3.13.10.jar',
+    f'{jarPath}/spark-snowflake/spark-snowflake_2.12-2.9.2-spark_3.1.jar', # scala 2.12 + pyspark 3.1
 ]
 os.environ['PYSPARK_SUBMIT_ARGS'] = f'--jars {",".join(jars)}  pyspark-shell'
 
