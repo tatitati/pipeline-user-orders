@@ -1,6 +1,6 @@
 pyfunctional
 jsonschema==3.0.1
-pyspark
+pyspark==3.1.1
 numpy
 pyarrow
 certifi

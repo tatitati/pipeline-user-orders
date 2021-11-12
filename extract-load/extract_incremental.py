@@ -10,11 +10,13 @@ import snowflake.connector
 from pyspark.sql.functions import col, lit
 from snowflake.connector import ProgrammingError
 
-jarPath='/Users/tati/lab/de/pipeline-user-orders/jar'
+jarPath='/Users/tati/lab/de/pipeline-user-orders/jars'
 jars = [
-    f'{jarPath}/mysql-connector-java-8.0.12/mysql-connector-java-8.0.12.jar',
-    f'{jarPath}/snowflake-jdbc-3.13.10.jar',
-    f'{jarPath}/spark-snowflake_2.11-2.9.2-spark_2.4.jar',
+    # spark-mysql
+    f'{jarPath}/mysql-connector-java-8.0.12.jar',
+    # spark-snowflake
+    f'{jarPath}/snowflake-jdbc-3.13.10.jar',    
+    f'{jarPath}/spark-snowflake_2.12-2.9.2-spark_3.1.jar', # scala 2.12 + pyspark 3.1
 ]
 os.environ['PYSPARK_SUBMIT_ARGS'] = f'--jars {",".join(jars)}  pyspark-shell'
 
@@ -88,6 +90,7 @@ df_users = spark\
     .option("user", oltp_username)\
     .option("password", oltp_password)\
     .load()
+
 # CONVERTING TO PARQUET IS BUGGER regarding to timestamps, is generaring invalid timestamps, SO I CHANGING THE COLUMN TO STRING
 df_users_new = df_users\
     .withColumn("New_Column", col('created_at').cast("String"))\
