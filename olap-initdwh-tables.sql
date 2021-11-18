@@ -1,6 +1,6 @@
 
 
-CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".users(
+CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE"."USERS"(
   PARQUET_RAW VARIANT not null,
   md5 varchar(100) not null,
   created_at datetime not null default CURRENT_TIMESTAMP(),
@@ -8,16 +8,19 @@ CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".users(
   metadata_row_number integer not null
 );
 
-CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE".orders(
+CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE"."ORDERS"(
   PARQUET_RAW VARIANT not null,
   md5 varchar(100) not null,
   created_at datetime not null default CURRENT_TIMESTAMP(),
   source varchar not null,
   metadata_row_number integer not null
 );
+
+CREATE OR REPLACE STREAM STREAM_ORDERS ON TABLE "MYDBT"."DE_BRONZE"."ORDERS";
+CREATE OR REPLACE STREAM STREAM_USERS ON TABLE "MYDBT"."DE_BRONZE"."USERS";
 
 -- extract current
-create or replace table orders_extract_current(
+create or replace table "MYDBT"."DE_BRONZE"."ORDERS_EXTRACT_CURRENT"(
     id number not null,
     id_user number not null,
     spent number not null,
@@ -26,7 +29,7 @@ create or replace table orders_extract_current(
     updated_at datetime
 );
 
-create or replace table users_extract_current(
+create or replace table "MYDBT"."DE_BRONZE"."USERS_EXTRACT_CURRENT"(
     id number not null,
     name varchar not null,
     age number not null,
@@ -34,9 +37,10 @@ create or replace table users_extract_current(
     created_at datetime not null,
     updated_at datetime
 );
+
 
 -- extract previous
-create or replace table orders_extract_previous(
+create or replace table "MYDBT"."DE_BRONZE"."ORDERS_EXTRACT_PREVIOUS"(
     id number not null,
     id_user number not null,
     spent number not null,
@@ -45,7 +49,7 @@ create or replace table orders_extract_previous(
     updated_at datetime
 );
 
-create or replace table users_extract_previous(
+create or replace table "MYDBT"."DE_BRONZE"."USERS_EXTRACT_PREVIOUS"(
     id number not null,
     name varchar not null,
     age number not null,
@@ -53,6 +57,7 @@ create or replace table users_extract_previous(
     created_at datetime not null,
     updated_at datetime
 );
+
 
 create or replace TABLE "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" (
 	USER_ID NUMBER(38,0),

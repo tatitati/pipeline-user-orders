@@ -15,7 +15,7 @@ CREATE OR REPLACE FILE FORMAT my_parquet_format
   COMPRESSION = SNAPPY;
 
 create or replace pipe mydbt.de_bronze.users auto_ingest=true as
-        COPY INTO "MYDBT"."DE_BRONZE".users
+        COPY INTO "MYDBT"."DE_BRONZE"."USERS"
         from (
           select
             *,
@@ -23,13 +23,13 @@ create or replace pipe mydbt.de_bronze.users auto_ingest=true as
             current_timestamp(),
             concat('s3://pipelineusersorders/',METADATA$FILENAME),
             METADATA$FILE_ROW_NUMBER
-          from @s3pipelineusersorders/users
+          from @s3pipelineusersorders/USERS
         )
         pattern = '.*/.*[.]parquet'
         file_format = (type=PARQUET COMPRESSION=SNAPPY);
 
 create or replace pipe mydbt.de_bronze.orders auto_ingest=true as
-        COPY INTO "MYDBT"."DE_BRONZE".orders
+        COPY INTO "MYDBT"."DE_BRONZE"."ORDERS"
         from (
           select
             *,
@@ -37,7 +37,7 @@ create or replace pipe mydbt.de_bronze.orders auto_ingest=true as
             current_timestamp(),
             concat('s3://pipelineusersorders/',METADATA$FILENAME),
             METADATA$FILE_ROW_NUMBER
-          from @s3pipelineusersorders/orders
+          from @s3pipelineusersorders/ORDERS
         )
         pattern = '.*/.*[.]parquet'
         file_format = (type=PARQUET COMPRESSION=SNAPPY);
