@@ -83,36 +83,11 @@ for table in ["USERS", "ORDERS"]:
         .option("password", oltp_password)\
         .load()
 
-    print("current:")
+    print("new:")
     df_new.show()
 
-    if df_new.count() > 0:
-        df_new.write\
-            .format(SNOWFLAKE_SOURCE_NAME)\
-            .options(**sfOptions)\
-            .option("dbtable", f'{table}_EXTRACT_CURRENT')\
-            .mode("append")\
-            .save()
-
-    df_previous = spark.read.format(SNOWFLAKE_SOURCE_NAME) \
-      .options(**sfOptions) \
-      .option("query",  f'select * from {table}_EXTRACT_PREVIOUS') \
-      .load()
-
-
-    print("previous:")
-    df_previous.show()
-
-    df_deduplicated = df_new.subtract(df_previous) # current MINUS previous
-
-    print("deduplicated:")
-    df_deduplicated.show()
-
-
-    # now is deduplicated. Convert to Parquet and upload to s3
-
     # CONVERTING TO PARQUET IS BUGGER regarding to timestamps, is generaring invalid timestamps, SO I CHANGING THE COLUMN TO STRING
-    df_new_column = df_deduplicated\
+    df_new_column = df_new\
         .withColumn("New_Column", col('created_at').cast("String"))\
         .drop("created_at")\
         .withColumnRenamed("New_Column", "created_at")
@@ -151,12 +126,6 @@ for table in ["USERS", "ORDERS"]:
                 bucket_name,
                 filename)\
             .put(Body=out_buffer.getvalue())
-
-    # swap current and previous tables
-
-    cur.execute(f"""truncate table "MYDBT"."DE_BRONZE"."{table}_EXTRACT_PREVIOUS";""")
-    cur.execute(f"""ALTER TABLE "MYDBT"."DE_BRONZE"."{table}_EXTRACT_PREVIOUS" SWAP WITH "MYDBT"."DE_BRONZE"."{table}_EXTRACT_CURRENT";""")
-
 
 
 cur.close()

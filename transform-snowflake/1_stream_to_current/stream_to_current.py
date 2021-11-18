@@ -41,7 +41,7 @@ cur = snow_conn.cursor()
 
 tables = [
     ['ORDERS', 'STREAM_ORDERS', 'ORDERS_CURRENT'],
-    ['USERS',  'STREAM_USERS',  'ORDERS_CURRENT']
+    ['USERS',  'STREAM_USERS',  'USERS_CURRENT']
 ]
 
 for listTables in tables:
