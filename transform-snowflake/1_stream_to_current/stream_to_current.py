@@ -39,19 +39,16 @@ snow_conn = snowflake.connector.connect(
     schema="de_silver")
 cur = snow_conn.cursor()
 
-tables = [
-    ['ORDERS', 'STREAM_ORDERS', 'ORDERS_CURRENT'],
-    ['USERS',  'STREAM_USERS',  'USERS_CURRENT']
-]
+tables = ['ORDERS', 'USERS']
 
-for listTables in tables:
-    cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."{listTables[2]}";')  # truncate "current" table if exists
-    cur.execute(f'create table if not exists "MYDBT"."DE_SILVER"."{listTables[2]}" like "MYDBT"."DE_BRONZE"."{listTables[0]}";') # create "current" table if needed
+for table in tables:
+    cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."{table}_CURRENT";')  # truncate "current" table if exists
+    cur.execute(f'create table if not exists "MYDBT"."DE_SILVER"."{table}_CURRENT" like "MYDBT"."DE_BRONZE"."{table}";') # create "current" table if needed
 
     current_sql = f"""
-        insert into "MYDBT"."DE_SILVER"."{listTables[2]}"(parquet_raw, md5, created_at, source, METADATA_ROW_NUMBER)
+        insert into "MYDBT"."DE_SILVER"."{table}_CURRENT"(parquet_raw, md5, created_at, source, METADATA_ROW_NUMBER)
             select parquet_raw, md5, created_at, source, METADATA_ROW_NUMBER
-            from {listTables[1]};
+            from STREAM_{table};
     """
     print(current_sql)
     cur.execute(current_sql)
