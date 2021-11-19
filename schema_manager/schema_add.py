@@ -15,6 +15,12 @@ from pyspark.sql.functions import col, lit
 from pyspark.sql.types import StructType, StructField, IntegerType, DateType, TimestampType, StringType
 from snowflake.connector import ProgrammingError
 
+
+
+# example use:
+# /usr/local/bin/python3.6 /Users/tati/lab/de/pipeline-user-orders/schema_manager/schema_add.py user_1.json
+# /usr/local/bin/python3.6 /Users/tati/lab/de/pipeline-user-orders/schema_manager/schema_add.py order_1.json
+
 jarPath='/Users/tati/lab/de/pipeline-user-orders/jars'
 jars = [
     # spark-snowflake
