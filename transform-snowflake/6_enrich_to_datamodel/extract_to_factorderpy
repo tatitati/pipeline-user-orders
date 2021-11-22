@@ -57,12 +57,14 @@ cur.execute("""
 cur.execute(f"""
          insert into "MYDBT"."DE_GOLD"."FACT_ORDERS"(id, created_at, spent, id_dim_user, id_dim_status)
             select 
-                id, 
-                created_at,
-                spent,
-            from "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST" orders_extract_cast
-            left join "MYDBT"."DE_GOLD"."FACT_ORDERS" fact_orders on fact_orders.
-            left join "MYDBT"."DE_GOLD"."FACT_ORDERS"
+                orders_extract_cast.id, 
+                orders_extract_cast.created_at, 
+                orders_extract_cast.spent, 
+                dim_users.sk, 
+                dim_status.sk
+            from "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST" orders_extract_cast            
+            left join "MYDBT"."DE_GOLD"."DIM_USERS" dim_users on dim_users.id=orders_extract_cast.id_user 
+            left join "MYDBT"."DE_GOLD"."DIM_STATUS" dim_status on dim_status.id=orders_extract_cast.id 
             where orders_extract_cast.updated_at is null  
         """)
 

@@ -68,7 +68,7 @@ cur.execute(f"""
 cur.execute("""
         insert into "MYDBT"."DE_GOLD"."DIM_USERS"(id, name, age, address, created_at) 
             select id, name, age, address, created_at
-            from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST"                
+            from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST"           
 """)
 
 cur.close()
