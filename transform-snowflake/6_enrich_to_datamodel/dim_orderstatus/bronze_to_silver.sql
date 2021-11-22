@@ -32,7 +32,7 @@ insert into MYDBT.DE_SILVER.ORDERS_EXTRACT_CAST(order_id, id_user, spent, status
     where duplicates = 1;
 
 --
--- deduplicate
+-- deduplicate (ORDERS_DEDUPLICATE HAS AN STREAM)
 --
 merge into MYDBT.DE_SILVER.ORDERS_DEDUPLICATED od
     using (
