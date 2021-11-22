@@ -39,18 +39,49 @@ snow_conn = snowflake.connector.connect(
     schema="de_silver")
 cur = snow_conn.cursor()
 
-tables = ['ORDERS', 'USERS']
 
-for table in tables:
-    cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."{table}_EXTRACT"')
-
-    cur.execute(f"""
-        create table if not exists "MYDBT"."DE_SILVER"."{table}_EXTRACT" as
+# USERS_DEDUP -> USERS_EXTRACT
+cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST"')
+cur.execute(f"""
+         create or replace table "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST"(
+            id number not null,
+            name varchar not null,
+            address varchar not null,
+            age number not null,
+            created_at datetime not null,
+            updated_at datetime not null
+         ) as
             select 
-                *
+                parquet_raw:id::number,
+                parquet_raw:name::varchar,
+                parquet_raw:address::varchar,
+                parquet_raw:age::number,
+                parquet_raw:created_at::datetime,
+                parquet_raw:updated_at::datetime
             from 
-                "MYDBT"."DE_SILVER"."{table}_DEDUP",
-                LATERAL FLATTEN( INPUT => parquet_raw);
+                "MYDBT"."DE_SILVER"."USERS_DEDUP";    
+        """)
+
+# ORDERS_DEDUP -> ORDERS_EXTRACT
+cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST"')
+cur.execute(f"""
+         create or replace table "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST"(
+            id number not null,
+            id_user number not null,
+            spent number not null,
+            status varchar not null,
+            created_at datetime not null,
+            updated_at datetime not null
+         ) as
+            select 
+                parquet_raw:id::number,
+                parquet_raw:id_user::number,
+                parquet_raw:spent::number,
+                parquet_raw:status::varchar,
+                parquet_raw:created_at::datetime,
+                parquet_raw:updated_at::datetime
+            from 
+                "MYDBT"."DE_SILVER"."ORDERS_DEDUP";    
         """)
 
 cur.close()

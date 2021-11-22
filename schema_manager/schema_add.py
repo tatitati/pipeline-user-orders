@@ -83,3 +83,7 @@ filename = f'schemas/{entity}/{schema_filename}'
 
 print("uploading schema to s3:")
 bucket.put_object(Key=filename, Body=schema_content)
+
+
+
+# trigger COPY into ?
