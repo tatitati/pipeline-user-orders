@@ -42,7 +42,7 @@ cur = snow_conn.cursor()
 
 # ORDERS_EXTRACT -> DIM_STATUS
 cur.execute("""
-                create table if not exist "MYDBT"."DE_GOLD"."DIM_STATUS"(
+                create table if not exists "MYDBT"."DE_GOLD"."DIM_STATUS"(
                     sk number not null autoincrement primary key,
                     id number not null,
                     status varchar not null,                    

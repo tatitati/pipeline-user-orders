@@ -42,12 +42,12 @@ cur = snow_conn.cursor()
 
 # USERS_EXTRACT -> DIM_USERS
 cur.execute("""
-                create table if not exist "MYDBT"."DE_GOLD"."DIM_USERS"(
+                create table if not exists "MYDBT"."DE_GOLD"."DIM_USERS"(
                     sk number not null autoincrement primary key,
                     id number not null,
                     name varchar not null,
                     age number not null,
-                    address varchar not null
+                    address varchar not null,
                     created_at datetime not null,
                     valid_from datetime not null default current_timestamp,
                     is_effective boolean not null default TRUE                

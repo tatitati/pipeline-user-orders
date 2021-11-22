@@ -49,7 +49,7 @@ cur.execute(f"""
             address varchar not null,
             age number not null,
             created_at datetime not null,
-            updated_at datetime not null
+            updated_at datetime
          ) as
             select 
                 parquet_raw:id::number,
@@ -71,7 +71,7 @@ cur.execute(f"""
             spent number not null,
             status varchar not null,
             created_at datetime not null,
-            updated_at datetime not null
+            updated_at datetime
          ) as
             select 
                 parquet_raw:id::number,

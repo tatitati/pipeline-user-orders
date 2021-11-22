@@ -42,7 +42,7 @@ cur = snow_conn.cursor()
 
 # ORDERS_EXTRACT -> FACT_ORDERS
 cur.execute("""
-                create table if not exist "MYDBT"."DE_GOLD"."FACT_ORDERS"(
+                create table if not exists "MYDBT"."DE_GOLD"."FACT_ORDERS"(
                     sk number not null autoincrement primary key,
                     id number not null,
                     created_at datetime not null,
@@ -50,7 +50,7 @@ cur.execute("""
                     id_dim_user number not null,
                     id_dim_status number not null,
                     
-                    foreign key(id_dim_users) references "MYDBT"."DE_GOLD"."DIM_USERS"(sk),
+                    foreign key(id_dim_user) references "MYDBT"."DE_GOLD"."DIM_USERS"(sk),
                     foreign key(id_dim_status) references "MYDBT"."DE_GOLD"."DIM_STATUS"(sk)
                 )
             """)
