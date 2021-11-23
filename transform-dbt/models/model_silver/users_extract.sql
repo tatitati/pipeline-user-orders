@@ -5,4 +5,4 @@ select
     parquet_raw:name::varchar as name,
     parquet_raw:created_at::datetime as created_at,
     parquet_raw:updated_at::datetime as updated_at
-from {{ source('source_bronze', 'STREAM_USERS') }}
+from {{ source('dbt_solution__source_bronze', 'USERS_CURRENT') }}

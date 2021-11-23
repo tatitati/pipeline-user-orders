@@ -1,10 +1,18 @@
 version: 2
 
 sources:
-  - name: source_bronze
+  - name: mydbt__source_bronze
     database: mydbt
     schema: public
     tables:
       - name: STREAM_USERS
       - name: STREAM_ORDERS
+  - name: dbt_solution__source_bronze
+    database: dbt_solution
+    schema: de_bronze
+    tables:
+      - name: USERS_CURRENT
+      - name: ORDERS_CURRENT
+
+
 
