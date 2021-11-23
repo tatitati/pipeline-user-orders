@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: silver
-    database: mydbt
-    schema: de_silver
+    database: dbt_solution
+    schema: silver
     tables:
       - name: users_extract_cast
       - name: orders_extract_cast

@@ -1,8 +1,5 @@
--- init db
+
 create database if not exists usersorders;
-use usersorders;
-drop table if exists orders;
-drop table if exists users;
 
 create table users(
     id integer not null auto_increment,

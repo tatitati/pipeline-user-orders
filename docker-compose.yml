@@ -1,11 +1,13 @@
 version: '3'
 
 services:
-    db:
+    db_snowflake_dbt:
         image: mysql
         command: --default-authentication-plugin=mysql_native_password
-        restart: always
         environment:
             MYSQL_ROOT_PASSWORD: YOUR_PASSWORD_HERE
+            MYSQL_DATABASE: usersorders
         ports:
             - 3306:3306
+        volumes:
+            - ./oltp-initdb.sql:/docker-entrypoint-initdb.d/oltp-initdb.sql

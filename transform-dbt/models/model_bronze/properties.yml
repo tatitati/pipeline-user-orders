@@ -5,6 +5,6 @@ sources:
     database: mydbt
     schema: de_bronze
     tables:
-      - name: users
-      - name: orders
+      - name: STREAM_USERS
+      - name: STREAM_ORDERS
 
