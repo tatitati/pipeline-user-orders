@@ -5,6 +5,6 @@ sources:
     database: dbt_solution
     schema: de_silver
     tables:
-      - name: users_extract_cast
-      - name: orders_extract_cast
+      - name: users_extract
+      - name: orders_extract
 
