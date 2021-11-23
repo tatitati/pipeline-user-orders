@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "pipeline-user-orders"
+version = "0.1.0"
+description = ""
+authors = ["Francisco Albusac <francis.jaa@protonmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.6.3,<4.0"
+
+
+
+[tool.poetry.dev-dependencies]
+jsonschema="3.0.1"
+pyfunctional = "1.4.3"
+pyspark="3.1.1"
+numpy="1.19.5"
+pyarrow="6.0.0"
+certifi="2021.10.8"
+json-flatten="0.2"
+pandas="1.1.5"
+botocore="1.20.106"
+boto3="1.17.106"
+snowflake-connector-python="2.5.1"
+dbt-snowflake="0.21.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
