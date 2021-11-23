@@ -1,9 +1,9 @@
 version: 2
 
 sources:
-  - name: bronze
+  - name: source_bronze
     database: mydbt
-    schema: de_bronze
+    schema: public
     tables:
       - name: STREAM_USERS
       - name: STREAM_ORDERS

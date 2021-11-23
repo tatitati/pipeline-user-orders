@@ -33,12 +33,12 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   my_new_project:
-    bronze:
+    model_bronze:
       materialized: table
-      schema: bronze
-    silver:
+      schema: bronze # this will result in an schema de_bronze
+    model_silver:
       materialized: table
-      schema: silver
-    gold:
+      schema: silver # this will result in an schema de_silver
+    model_gold:
       materialized: table
-      schema: gold
+      schema: gold # this will result in an schema gold

@@ -1,9 +1,9 @@
 version: 2
 
 sources:
-  - name: silver
+  - name: source_silver
     database: dbt_solution
-    schema: silver
+    schema: de_silver
     tables:
       - name: users_extract_cast
       - name: orders_extract_cast

@@ -3,4 +3,4 @@ select
     md5 as md5,
     created_at as created_at,
     source as source
-from {{ source('bronze', 'STREAM_USERS') }}
+from {{ source('source_bronze', 'STREAM_USERS') }}
