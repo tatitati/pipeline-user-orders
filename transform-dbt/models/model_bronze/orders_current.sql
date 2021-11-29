@@ -1,3 +1,5 @@
+{{ config(materialized='table') }}
+
 select
     parquet_raw as parquet_raw,
     md5 as md5,

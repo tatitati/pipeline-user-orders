@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: snapshot
+    database: DBT_SOLUTION
+    schema: DE_GOLD
+    tables:
+      - name: dim_status
+      - name: dim_user

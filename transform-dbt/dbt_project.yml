@@ -39,6 +39,9 @@ models:
     model_silver:
       materialized: table
       schema: silver # this will result in an schema de_silver
-    model_gold:
+    model_gold_dimensions:
+      materialized: table
+      schema: gold # this will result in an schema gold
+    model_gold_facts:
       materialized: table
       schema: gold # this will result in an schema gold

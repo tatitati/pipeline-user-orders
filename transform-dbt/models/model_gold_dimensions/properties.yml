@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: source_gold
+    database: DBT_SOLUTION
+    schema: DE_GOLD
+    tables:
+      - name: incremental_dim_status
+      - name: incremental_dim_users
+      - name: incremental_fact_orders
+      - name: dim_users  # snapshot
+      - name: dim_status # snapshot

@@ -2,9 +2,9 @@ version: 2
 
 sources:
   - name: source_silver
-    database: dbt_solution
-    schema: de_silver
+    database: DBT_SOLUTION
+    schema: DE_SILVER
     tables:
-      - name: users_extract
-      - name: orders_extract
+      - name: USERS_EXTRACT
+      - name: ORDERS_EXTRACT
 
