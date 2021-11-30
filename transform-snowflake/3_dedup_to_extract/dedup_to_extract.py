@@ -75,7 +75,7 @@ cur.execute(f"""
                 parquet_raw:id::number,
                 parquet_raw:id_user::number,
                 parquet_raw:spent::number,
-                parquet_raw:status::varchar,
+                lower(parquet_raw:status::varchar),
                 parquet_raw:created_at::datetime,
                 parquet_raw:updated_at::datetime
             from 
