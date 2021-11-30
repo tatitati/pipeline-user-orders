@@ -1,5 +1,5 @@
 
-{% snapshot dim_status %}
+{% snapshot snapshot_incremental_dim_status %}
 {{
     config(
         target_database="DBT_SOLUTION",

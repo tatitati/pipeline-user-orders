@@ -115,7 +115,7 @@ for table in ["USERS", "ORDERS"]:
     filename=f'{table.lower()}/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
 
     if df_new_column.count() > 0:
-        print("uploading to s3:")
+        print(f'uploading to s3: /{filename}')
 
         now = datetime.datetime.now()
 
