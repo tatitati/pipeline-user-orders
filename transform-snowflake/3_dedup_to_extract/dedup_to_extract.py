@@ -41,7 +41,6 @@ cur = snow_conn.cursor()
 
 
 # USERS_DEDUP -> USERS_EXTRACT
-cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST"')
 cur.execute(f"""
          create or replace table "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST"(
             id number not null,
@@ -63,7 +62,6 @@ cur.execute(f"""
         """)
 
 # ORDERS_DEDUP -> ORDERS_EXTRACT
-cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST"')
 cur.execute(f"""
          create or replace table "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST"(
             id number not null,

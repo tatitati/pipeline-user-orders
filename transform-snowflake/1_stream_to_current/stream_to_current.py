@@ -42,8 +42,8 @@ cur = snow_conn.cursor()
 tables = ['ORDERS', 'USERS']
 
 for table in tables:
-    cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."{table}_CURRENT";')  # truncate "current" table if exists
-    cur.execute(f'create table if not exists "MYDBT"."DE_SILVER"."{table}_CURRENT" like "MYDBT"."DE_BRONZE"."{table}";') # create "current" table if needed
+    # this operation must be idempotent, doesnt matter how many times we run it
+    cur.execute(f'create or replace table "MYDBT"."DE_SILVER"."{table}_CURRENT" like "MYDBT"."DE_BRONZE"."{table}";')
 
     current_sql = f"""
         insert into "MYDBT"."DE_SILVER"."{table}_CURRENT"(parquet_raw, md5, created_at, source, METADATA_ROW_NUMBER)
@@ -51,6 +51,7 @@ for table in tables:
             from STREAM_{table}
             where metadata$action = 'INSERT'
     """
+    print(current_sql)
     cur.execute(current_sql)
 
 cur.close()

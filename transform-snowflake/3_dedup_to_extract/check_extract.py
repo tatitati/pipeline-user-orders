@@ -39,20 +39,42 @@ snow_conn = snowflake.connector.connect(
     schema="de_silver")
 cur = snow_conn.cursor()
 
-tables = ['ORDERS', 'USERS']
 
-for table in tables:
-    cur.execute(f'create table if not exists "MYDBT"."DE_SILVER"."{table}_PREVIOUS" like "MYDBT"."DE_SILVER"."{table}_CURRENT";') # create "current" table if needed
-    cur.execute(f'create or replace table "MYDBT"."DE_SILVER"."{table}_DEDUP" like "MYDBT"."DE_SILVER"."{table}_CURRENT";')  # create "current" table if needed
+# USERS_DEDUP -> USERS_EXTRACT
+# check amount of records
 
-    cur.execute(f"""
-        insert into "MYDBT"."DE_SILVER"."{table}_DEDUP"
-            select * from "MYDBT"."DE_SILVER"."{table}_CURRENT"
-            minus
-            select * from "MYDBT"."DE_SILVER"."{table}_PREVIOUS"
-    """)
+cur.execute(f"""
+         select count(*)
+         from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST"         
+        """)
 
-    cur.execute(f'alter table "MYDBT"."DE_SILVER"."{table}_CURRENT" swap with "MYDBT"."DE_SILVER"."{table}_PREVIOUS"')
-    cur.execute(f'truncate table if exists "MYDBT"."DE_SILVER"."{table}_CURRENT"')
+result = cur.fetchall()
+if len(result) == 0:
+    print("error: no records")
 
+
+# check age
+cur.execute(f"""
+         select *
+             from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" 
+             where 
+                age < 0 or age > 100;
+        """)
+
+result = cur.fetchall()
+if len(result) > 1:
+    print("error age out of boundaries")
+
+
+# check age
+cur.execute(f"""
+         select *
+             from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" 
+             where 
+                name is null or name = '';
+        """)
+result = cur.fetchall()
+
+if len(result) > 1:
+    print("error name is empty")
 cur.close()
