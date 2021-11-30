@@ -41,8 +41,8 @@ cur = snow_conn.cursor()
 
 
 # USERS_DEDUP -> USERS_EXTRACT
-# check amount of records
 
+# check amount of user records
 cur.execute(f"""
          select count(*)
          from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST"         
@@ -53,7 +53,7 @@ if len(result) == 0:
     print("error: no records")
 
 
-# check age
+# check user age
 cur.execute(f"""
          select *
              from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" 
@@ -66,7 +66,7 @@ if len(result) > 1:
     print("error age out of boundaries")
 
 
-# check age
+# check user name
 cur.execute(f"""
          select *
              from "MYDBT"."DE_SILVER"."USERS_EXTRACT_CAST" 
@@ -77,4 +77,29 @@ result = cur.fetchall()
 
 if len(result) > 1:
     print("error name is empty")
+
+
+# check order spent
+cur.execute(f"""
+         select *
+             from "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST" 
+             where 
+                spent = 0 or spent < 0;
+        """)
+result = cur.fetchall()
+
+if len(result) > 1:
+    print("error spent cannot be zero or negative")
+
+# check order status
+cur.execute(f"""
+         select *
+             from "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST" 
+             where 
+                status not in ('processing', 'dispatching', 'completed')
+        """)
+result = cur.fetchall()
+
+if len(result) > 1:
+    print("error order status is not valid")
 cur.close()
