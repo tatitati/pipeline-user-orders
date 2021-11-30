@@ -9,6 +9,7 @@ from pyspark import SparkContext
 import configparser
 import datetime
 import os
+import sys
 import snowflake.connector
 from pyspark.sql.functions import col, lit
 from pyspark.sql.types import StructType, StructField, IntegerType, DateType, TimestampType, StringType
@@ -112,6 +113,7 @@ query = f"""
 cur.execute(query)
 
 tables = ['USERS_EXTRACT_CAST', 'ORDERS_EXTRACT_CAST']
+errors_found = False
 for table in tables:
     # get tests for each table
     cur.execute(f"""
@@ -126,16 +128,18 @@ for table in tables:
         cur.execute(test[1])
         result = cur.fetchall()
 
-        if len(result) == 0:
-            print(f"passing")
-        else:
-            # we want one entry per failed test, not per row not passing the test
-            query = f"""
-                insert into  "MYDBT"."DATA_QUALITY"."FACT_ERRORS"(id_dim_tests, amount_records_failing)
-                    values
-                        ({test[0]}, {len(result)})
-            """
+        if len(result) != 0:
+            errors_found = True
 
-            cur.execute(query)
+            # we want one entry per failed test, not per row not passing the test
+            cur.execute(f"""
+                insert into  "MYDBT"."DATA_QUALITY"."FACT_ERRORS"(id_dim_tests, amount_records_failing)
+                    values ({test[0]}, {len(result)})
+                """)
 
 cur.close()
+
+if errors_found == True:
+    sys.exit(1)
+else:
+    sys.exit(0)
