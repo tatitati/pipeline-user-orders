@@ -7,7 +7,7 @@
         unique_key="status",
 
         strategy="check",
-        check_cols=["status"]
+        check_cols=["id_order", "status"]
     )
 }}
 
