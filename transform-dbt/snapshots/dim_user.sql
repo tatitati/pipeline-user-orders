@@ -1,5 +1,5 @@
 
-{% snapshot snapshot_incremental_dim_user %}
+{% snapshot dim_user %}
 {{
     config(
         target_database="DBT_SOLUTION",

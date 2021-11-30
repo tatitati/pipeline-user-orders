@@ -5,5 +5,5 @@ sources:
     database: DBT_SOLUTION
     schema: DE_GOLD
     tables:
-      - name: snapshot_incremental_dim_status
-      - name: snapshot_incremental_dim_user
+      - name: dim_status
+      - name: dim_user
