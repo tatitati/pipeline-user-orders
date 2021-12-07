@@ -40,7 +40,7 @@ create or replace pipe mydbt.de_bronze.users auto_ingest=true as
             current_timestamp(),
             concat('s3://pipelineusersorders/',METADATA$FILENAME),
             METADATA$FILE_ROW_NUMBER
-          from @"s3pipelineusersorders"/USERS
+          from @"s3pipelineusersorders"/users
         )
         pattern = '.*/.*[.]parquet'
         file_format = (type=PARQUET COMPRESSION=SNAPPY);
@@ -54,7 +54,7 @@ create or replace pipe mydbt.de_bronze.orders auto_ingest=true as
             current_timestamp(),
             concat('s3://pipelineusersorders/',METADATA$FILENAME),
             METADATA$FILE_ROW_NUMBER
-          from @"s3pipelineusersorders"/ORDERS
+          from @"s3pipelineusersorders"/orders
         )
         pattern = '.*/.*[.]parquet'
         file_format = (type=PARQUET COMPRESSION=SNAPPY);
