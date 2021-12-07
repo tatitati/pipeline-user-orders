@@ -1,20 +1,5 @@
 
 
-CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE"."USERS"(
-  PARQUET_RAW VARIANT not null,
-  md5 varchar(100) not null,
-  created_at datetime not null default CURRENT_TIMESTAMP(),
-  source varchar not null,
-  metadata_row_number integer not null
-);
-
-CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE"."ORDERS"(
-  PARQUET_RAW VARIANT not null,
-  md5 varchar(100) not null,
-  created_at datetime not null default CURRENT_TIMESTAMP(),
-  source varchar not null,
-  metadata_row_number integer not null
-);
 
 CREATE OR REPLACE STREAM STREAM_ORDERS ON TABLE "MYDBT"."DE_BRONZE"."ORDERS";
 CREATE OR REPLACE STREAM STREAM_USERS ON TABLE "MYDBT"."DE_BRONZE"."USERS";
