@@ -122,7 +122,7 @@ for table in ["USERS", "ORDERS"]:
     )
 
     now = datetime.datetime.now()
-    schema_version = '1.0' # is a db....im hardcoding for now
+    schema_version = '1_0' # is a db....im hardcoding for now
     filename=f'{table.lower()}/{schema_version}/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
 
     if df_new_column.count() > 0:

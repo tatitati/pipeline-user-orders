@@ -48,7 +48,7 @@ for table in tables:
     current_sql = f"""
         insert into "MYDBT"."DE_SILVER"."{table}_CURRENT"(parquet_raw, md5, created_at, source, METADATA_ROW_NUMBER)
             select parquet_raw, md5, created_at, source, METADATA_ROW_NUMBER
-            from STREAM_{table}
+            from "MYDBT"."DE_BRONZE"."STREAM_{table}"
             where metadata$action = 'INSERT'
     """
     print(current_sql)
