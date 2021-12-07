@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com/employee.schema.json",
+    "title": "Record of employee",
+    "description": "This document records the details of an employee",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "",
+            "type": "number"
+        },
+        "address": {
+            "description": "",
+            "type": "string"
+        },
+        "age": {
+            "description": "",
+            "type": "number",
+            "minimum": 1
+        },
+        "created_at": {
+            "description": "",
+            "type": "string",
+            "format": "date-time"
+        },
+        "name": {
+            "description": "",
+            "type": "string"
+        }
+    },
+    "required": ["id", "address", "age", "created_at", "name"]
+}
