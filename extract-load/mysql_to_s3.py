@@ -56,10 +56,10 @@ snow_conn = snowflake.connector.connect(
 )
 
 for table in ["USERS", "ORDERS"]:
-    print(f'uploading entity: {table}')
+    print(f'Entity: {table}')
     try:
         max_created = f"""
-            select max(created_at) 
+            select max(created_at)
             from "MYDBT"."DE_BRONZE".{table};
         """
 
@@ -73,17 +73,27 @@ for table in ["USERS", "ORDERS"]:
     except ProgrammingError as e:
         print(e.msg)
 
-    df_new = spark\
+    schemaUser = StructType([
+        StructField("id", IntegerType(), False),
+        StructField("name", StringType(), False),
+        StructField("age", IntegerType(), False),
+        StructField("address", StringType(), False),
+        StructField("created_at", TimestampType(), False),
+        StructField("updated_at", TimestampType(), True)
+    ])
+
+    rdd_new = spark\
         .read\
         .format("jdbc")\
         .option("url", "jdbc:mysql://localhost:3306/usersorders") \
         .option("driver", "com.mysql.cj.jdbc.Driver")\
         .option("query", f"""select * from {table.lower()} where created_at > '{ last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }' or updated_at > '{ last_ingestion.strftime("%Y-%m-%d %H:%M:%S") }'""")\
         .option("user", oltp_username)\
-        .option("password", oltp_password)\
-        .load()
+        .option("password", oltp_password) \
+        .load().rdd
 
-    print("new:")
+    # validate schema
+    df_new = spark.createDataFrame(rdd_new, schemaUser)
     df_new.show()
 
     # CONVERTING TO PARQUET IS BUGGER regarding to timestamps, is generaring invalid timestamps, SO I CHANGING THE COLUMN TO STRING
@@ -112,7 +122,8 @@ for table in ["USERS", "ORDERS"]:
     )
 
     now = datetime.datetime.now()
-    filename=f'{table.lower()}/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
+    schema_version = '1.0' # is a db....im hardcoding for now
+    filename=f'{table.lower()}/{schema_version}/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
 
     if df_new_column.count() > 0:
         print(f'uploading to s3: /{filename}')
