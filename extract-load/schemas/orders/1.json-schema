@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com/employee.schema.json",
+    "title": "orders",
+    "description": "This document records the details of an employee",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "",
+            "type": "number"
+        },
+        "id_user": {
+            "description": "",
+            "type": "number"
+        },
+        "created_at": {
+            "description": "",
+            "type": "string",
+            "format": "date-time"
+        },
+        "updated_at": {
+            "description": "",
+            "type": "string",
+            "format": "date-time"
+        },
+        "spent": {
+            "description": "",
+            "type": "number",
+            "minimum": 1
+        },
+        "status": {
+            "description": "",
+            "type": "string"
+        }
+    },
+    "required": ["id", "id_user", "created_at", "spent", "status"]
+}
