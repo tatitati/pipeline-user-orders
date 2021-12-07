@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "$id": "https://example.com/employee.schema.json",
-    "title": "Record of employee",
+    "title": "orders",
     "description": "This document records the details of an employee",
     "type": "object",
     "properties": {
@@ -14,6 +14,11 @@
             "type": "number"
         },
         "created_at": {
+            "description": "",
+            "type": "string",
+            "format": "date-time"
+        },
+        "updated_at": {
             "description": "",
             "type": "string",
             "format": "date-time"
