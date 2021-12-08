@@ -73,14 +73,28 @@ for table in ["USERS", "ORDERS"]:
     except ProgrammingError as e:
         print(e.msg)
 
-    schemaUser = StructType([
-        StructField("id", IntegerType(), False),
-        StructField("name", StringType(), False),
-        StructField("age", IntegerType(), False),
-        StructField("address", StringType(), False),
-        StructField("created_at", TimestampType(), False),
-        StructField("updated_at", TimestampType(), True)
-    ])
+
+    schemas = {
+        "USERS":
+            StructType([
+                    StructField("id", IntegerType(), False),
+                    StructField("name", StringType(), False),
+                    StructField("age", IntegerType(), False),
+                    StructField("address", StringType(), False),
+                    StructField("created_at", TimestampType(), False),
+                    StructField("updated_at", TimestampType(), True)
+            ]),
+        "ORDERS":
+            StructType([
+                StructField("id", IntegerType(), False),
+                StructField("id_user", IntegerType(), False),
+                StructField("spent", IntegerType(), False),
+                StructField("status", StringType(), False),
+                StructField("created_at", TimestampType(), False),
+                StructField("updated_at", TimestampType(), True)
+            ]),
+    }
+
 
     rdd_new = spark\
         .read\
@@ -93,7 +107,7 @@ for table in ["USERS", "ORDERS"]:
         .load().rdd
 
     # validate schema
-    df_new = spark.createDataFrame(rdd_new, schemaUser)
+    df_new = spark.createDataFrame(rdd_new, schemas[table])
     df_new.show()
 
     # CONVERTING TO PARQUET IS BUGGER regarding to timestamps, is generaring invalid timestamps, SO I CHANGING THE COLUMN TO STRING

@@ -48,7 +48,11 @@ cur.execute(f"""
             address varchar not null,
             age number not null,
             created_at datetime not null,
-            updated_at datetime
+            updated_at datetime,
+            source varchar not null,
+            schema_name varchar not null,
+            schema_version varchar not null,
+            schema_url varchar not null
          ) as
             select 
                 parquet_raw:id::number,
@@ -56,7 +60,11 @@ cur.execute(f"""
                 parquet_raw:address::varchar,
                 parquet_raw:age::number,
                 parquet_raw:created_at::datetime,
-                parquet_raw:updated_at::datetime
+                parquet_raw:updated_at::datetime,                
+                source,
+                SPLIT_part(source, '/', 4),
+                SPLIT_part(source, '/', 5),
+                concat('s3://pipelineuserorders/', SPLIT_part(source, '/', 4), '/', SPLIT_part(source, '/', 5), '.json')                
             from 
                 "MYDBT"."DE_SILVER"."USERS_DEDUP";    
         """)
@@ -69,7 +77,11 @@ cur.execute(f"""
             spent number not null,
             status varchar not null,
             created_at datetime not null,
-            updated_at datetime
+            updated_at datetime,
+            source varchar not null,
+            schema_name varchar not null,
+            schema_version varchar not null,
+            schema_url varchar not null
          ) as
             select 
                 parquet_raw:id::number,
@@ -77,7 +89,11 @@ cur.execute(f"""
                 parquet_raw:spent::number,
                 lower(parquet_raw:status::varchar),
                 parquet_raw:created_at::datetime,
-                parquet_raw:updated_at::datetime
+                parquet_raw:updated_at::datetime,
+                source,
+                SPLIT_part(source, '/', 4),
+                SPLIT_part(source, '/', 5),
+                concat('s3://pipelineuserorders/', SPLIT_part(source, '/', 4), '/', SPLIT_part(source, '/', 5), '.json')
             from 
                 "MYDBT"."DE_SILVER"."ORDERS_DEDUP";    
         """)
