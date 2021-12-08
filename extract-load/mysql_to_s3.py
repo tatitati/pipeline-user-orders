@@ -132,7 +132,11 @@ for table in ["USERS", "ORDERS"]:
     bucket = "s3://pipelineusersorders"
     schema_url = f"{bucket}/{schema_name}/{schema_version}.json"
     filename=f'{table.lower()}/{schema_version}/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
-    df_with_schema = df_new_column.withColumn("schema_url", lit(schema_url))
+
+    df_with_schema = df_new_column \
+        .withColumn("schema_version", lit(schema_version)) \
+        .withColumn("schema_name", lit(schema_name)) \
+        .withColumn("schema_url", lit(schema_url))
 
     df_with_schema.show()
 
