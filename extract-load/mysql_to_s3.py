@@ -108,7 +108,6 @@ for table in ["USERS", "ORDERS"]:
 
     # validate schema
     df_new = spark.createDataFrame(rdd_new, schemas[table])
-    df_new.show()
 
     # CONVERTING TO PARQUET IS BUGGER regarding to timestamps, is generaring invalid timestamps, SO I CHANGING THE COLUMN TO STRING
     df_new_column = df_new\
@@ -120,15 +119,6 @@ for table in ["USERS", "ORDERS"]:
         .drop("updated_at")\
         .withColumnRenamed("New_Column", "updated_at")
 
-    # +---+-------+-----+-------------------+
-    # | id|id_user|spent|         created_at|
-    # +---+-------+-----+-------------------+
-    # |  1|      1|   30|2021-11-02 13:49:36|
-    # |  2|      1|   20|2021-11-02 13:49:36|
-    # |  3|      3|  100|2021-11-02 13:49:36|
-    # +---+-------+-----+-------------------+
-
-
     s3 = boto3.resource(
         's3',
         aws_access_key_id=access_key,
@@ -136,16 +126,28 @@ for table in ["USERS", "ORDERS"]:
     )
 
     now = datetime.datetime.now()
-    schema_version = '1_0' # is a db....im hardcoding for now
+
+    schema_version = '1_0'  # is a db....im hardcoding for now
+    schema_name = table.lower()
+    bucket = "s3://pipelineusersorders"
+    schema_url = f"{bucket}/{schema_name}/{schema_version}.json"
     filename=f'{table.lower()}/{schema_version}/{now.year}-{now.month}-{now.day}/{now.hour}_{now.minute}_{now.second}.parquet'
 
-    if df_new_column.count() > 0:
-        print(f'uploading to s3: /{filename}')
+    df_with_schema = df_new_column \
+        .withColumn("schema_version", lit(schema_version)) \
+        .withColumn("schema_name", lit(schema_name)) \
+        .withColumn("schema_url", lit(schema_url)) \
+        .withColumn("filename", lit(f"{bucket}/{filename}"))
+
+    df_with_schema.show()
+
+    if df_with_schema.count() > 0:
+        print(f'uploading to s3: {bucket}/{filename}')
 
         now = datetime.datetime.now()
 
         out_buffer = BytesIO()
-        df_new_column.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+        df_with_schema.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
         s3\
             .Object(
                 bucket_name,
@@ -154,3 +156,22 @@ for table in ["USERS", "ORDERS"]:
 
 
 cur.close()
+
+
+# ORDERS:
+# +---+-------+-----+----------+-------------------+----------+--------------+-----------+--------------------+--------------------+
+# | id|id_user|spent|    status|         created_at|updated_at|schema_version|schema_name|          schema_url|            filename|
+# +---+-------+-----+----------+-------------------+----------+--------------+-----------+--------------------+--------------------+
+# |  1|      1|   30|processing|2021-12-08 20:02:42|      null|           1_0|     orders|s3://pipelineuser...|s3://pipelineuser...|
+# |  2|      1|   20|processing|2021-12-08 20:02:42|      null|           1_0|     orders|s3://pipelineuser...|s3://pipelineuser...|
+# |  3|      3|  100|processing|2021-12-08 20:02:42|      null|           1_0|     orders|s3://pipelineuser...|s3://pipelineuser...|
+# +---+-------+-----+----------+-------------------+----------+--------------+-----------+--------------------+--------------------+
+
+# USERS:
+# +---+---------+---+------------------+-------------------+----------+--------------+-----------+--------------------+--------------------+
+# | id|     name|age|           address|         created_at|updated_at|schema_version|schema_name|          schema_url|            filename|
+# +---+---------+---+------------------+-------------------+----------+--------------+-----------+--------------------+--------------------+
+# |  1|francisco| 34|   chalk avenue 23|2021-12-08 20:02:42|      null|           1_0|      users|s3://pipelineuser...|s3://pipelineuser...|
+# |  2|   samuel| 86|    crown road 101|2021-12-08 20:02:42|      null|           1_0|      users|s3://pipelineuser...|s3://pipelineuser...|
+# |  3|     john| 20|salvador square 10|2021-12-08 20:02:42|      null|           1_0|      users|s3://pipelineuser...|s3://pipelineuser...|
+# +---+---------+---+------------------+-------------------+----------+--------------+-----------+--------------------+--------------------+
