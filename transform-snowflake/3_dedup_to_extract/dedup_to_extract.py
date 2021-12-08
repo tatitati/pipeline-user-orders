@@ -13,6 +13,8 @@ import snowflake.connector
 from pyspark.sql.functions import col, lit
 from pyspark.sql.types import StructType, StructField, IntegerType, DateType, TimestampType, StringType
 from snowflake.connector import ProgrammingError
+import json
+
 
 jarPath='/Users/tati/lab/de/pipeline-user-orders/jars'
 jars = [
