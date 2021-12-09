@@ -73,7 +73,7 @@ for table in ["USERS", "ORDERS"]:
     except ProgrammingError as e:
         print(e.msg)
 
-
+    # i can use schemas stored in s3 for this indeed
     schemas = {
         "USERS":
             StructType([

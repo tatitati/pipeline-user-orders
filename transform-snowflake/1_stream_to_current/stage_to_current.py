@@ -42,16 +42,7 @@ cur = snow_conn.cursor()
 tables = ['ORDERS', 'USERS']
 
 for table in tables:
-    # this operation must be idempotent, doesnt matter how many times we run it
     cur.execute(f'create or replace table "MYDBT"."DE_SILVER"."{table}_CURRENT" like "MYDBT"."DE_BRONZE"."{table}";')
-
-    current_sql = f"""
-        insert into "MYDBT"."DE_SILVER"."{table}_CURRENT"(parquet_raw, md5, created_at, source, METADATA_ROW_NUMBER)
-            select parquet_raw, md5, created_at, source, METADATA_ROW_NUMBER
-            from "MYDBT"."DE_BRONZE"."STREAM_{table}"
-            where metadata$action = 'INSERT'
-    """
-    print(current_sql)
-    cur.execute(current_sql)
+    cur.execute(f'alter table "MYDBT"."DE_BRONZE"."{table}" swap with "MYDBT"."DE_SILVER"."{table}_CURRENT";')
 
 cur.close()

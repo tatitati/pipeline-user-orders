@@ -1,29 +1,4 @@
 
-
-
-CREATE OR REPLACE STREAM STREAM_ORDERS ON TABLE "MYDBT"."DE_BRONZE"."ORDERS";
-CREATE OR REPLACE STREAM STREAM_USERS ON TABLE "MYDBT"."DE_BRONZE"."USERS";
-
--- extract current
-create or replace table "MYDBT"."DE_BRONZE"."ORDERS_EXTRACT_CURRENT"(
-    id number not null,
-    id_user number not null,
-    spent number not null,
-    status varchar not null,
-    created_at datetime not null,
-    updated_at datetime
-);
-
-create or replace table "MYDBT"."DE_BRONZE"."USERS_EXTRACT_CURRENT"(
-    id number not null,
-    name varchar not null,
-    age number not null,
-    address varchar not null,
-    created_at datetime not null,
-    updated_at datetime
-);
-
-
 -- extract previous
 create or replace table "MYDBT"."DE_BRONZE"."ORDERS_EXTRACT_PREVIOUS"(
     id number not null,
