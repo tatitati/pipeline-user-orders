@@ -40,8 +40,23 @@ snow_conn = snowflake.connector.connect(
 cur = snow_conn.cursor()
 
 tables = ['ORDERS', 'USERS']
-
 for table in tables:
-    cur.execute(f'create table "MYDBT"."DE_SILVER"."{table}_DEDUP" as select distinct * from "MYDBT"."DE_SILVER"."{table}_CURRENT";')
-    
+    cur.execute(f"""
+                    create or replace table "MYDBT"."DE_SILVER"."{table}_DEDUP" as
+                    (
+                        select parquet_raw, md5, created_at, source, metadata_row_number
+                        from (
+                            SELECT 
+                              parquet_raw, 
+                              md5, 
+                              created_at, 
+                              source, 
+                              metadata_row_number,
+                              ROW_NUMBER() OVER (PARTITION BY md5 order by md5) duplicates
+                            FROM "MYDBT"."DE_SILVER"."{table}_CURRENT"
+                        ) d 
+                        where d.duplicates = 1
+                    );
+""")
+
 cur.close()
