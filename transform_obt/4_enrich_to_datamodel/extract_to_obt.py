@@ -40,32 +40,12 @@ snow_conn = snowflake.connector.connect(
 cur = snow_conn.cursor()
 
 
-# ORDERS_EXTRACT -> FACT_ORDERS
+# ORDERS_EXTRACT -> DIM_STATUS
+cur.execute(f'create table if not exists "MYDBT"."DE_GOLD"."FACT_SALES" like "MYDBT"."DE_SILVER"."SALES_EXTRACT_CAST";')
 cur.execute("""
-                create table if not exists "MYDBT"."DE_GOLD"."FACT_ORDERS"(
-                    sk number not null autoincrement primary key,
-                    id number not null,
-                    created_at datetime not null,
-                    spent number not null,                    
-                    id_dim_user number not null,
-                    id_dim_status number not null,
-                    
-                    foreign key(id_dim_user) references "MYDBT"."DE_GOLD"."DIM_USERS"(sk),
-                    foreign key(id_dim_status) references "MYDBT"."DE_GOLD"."DIM_STATUS"(sk)
-                )
-            """)
-cur.execute(f"""
-         insert into "MYDBT"."DE_GOLD"."FACT_ORDERS"(id, created_at, spent, id_dim_user, id_dim_status)
-            select 
-                orders_extract_cast.id, 
-                orders_extract_cast.created_at, 
-                orders_extract_cast.spent, 
-                dim_users.sk, 
-                dim_status.sk
-            from "MYDBT"."DE_SILVER"."ORDERS_EXTRACT_CAST" orders_extract_cast            
-            left join "MYDBT"."DE_GOLD"."DIM_USERS" dim_users on dim_users.id=orders_extract_cast.id_user 
-            left join "MYDBT"."DE_GOLD"."DIM_STATUS" dim_status on dim_status.id=orders_extract_cast.id 
-            where orders_extract_cast.updated_at is null  
+        insert into  "MYDBT"."DE_GOLD"."FACT_SALES"
+            select *
+            from "MYDBT"."DE_SILVER"."SALES_EXTRACT_CAST";
         """)
 
 cur.close()

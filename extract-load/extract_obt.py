@@ -155,6 +155,8 @@ df_with_schema = df_new \
     .withColumn("schema_name", lit('sales')) \
     .withColumn("schema_url", lit(schema_url))
 
+print(df_with_schema.schema.json())
+
 df_with_schema.show()
 
 if df_with_schema.count() > 0:

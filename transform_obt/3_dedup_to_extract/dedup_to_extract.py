@@ -64,33 +64,34 @@ for object_summary in my_bucket.objects.filter(Prefix="schemas/"):
 
 
 schema_version = '1_0'
-for table in ['USERS', 'ORDERS']:
-    schema = schemas[table.lower()]['1_0.json']
-    schemajson = json.loads(schema)
-    columns_to_create = []
-    raw_fields = []
-    for i, field in enumerate(schemajson['fields']):
-        nullControl = 'not null' if field['nullable'] == False else ''
-        mapTypes = {
-            "datetime": "timestamp",
-            "string": "varchar",
-            "integer": "number"
-        }
-        columns_to_create.append(f"{field['name']} {mapTypes[field['type']]} {nullControl}")
-        raw_fields.append(f"parquet_raw:{field['name']}::{mapTypes[field['type']]}")
 
-        if i == len(schemajson['fields']) - 1: # is last iteration?
-            columns = ','.join(columns_to_create)
-            parsers = ','.join(raw_fields)
+schema = schemas["sales"]['1_0.json']
+schemajson = json.loads(schema)
+columns_to_create = []
+raw_fields = []
 
-            cur.execute(f"""
-                     create or replace table "MYDBT"."DE_SILVER"."{table}_EXTRACT_CAST"(                        
-                        {columns}                        
-                     ) as
-                        select
-                            {parsers}
-                        from
-                            "MYDBT"."DE_SILVER"."{table}_DEDUP";
-                    """)
+for i, field in enumerate(schemajson['fields']):
+    nullControl = 'not null' if field['nullable'] == False else ''
+    mapTypes = {
+        "datetime": "timestamp",
+        "string": "varchar",
+        "integer": "number"
+    }
+    columns_to_create.append(f"{field['name']} {mapTypes[field['type']]} {nullControl}")
+    raw_fields.append(f"parquet_raw:{field['name']}::{mapTypes[field['type']]}")
+
+    if i == len(schemajson['fields']) - 1: # is last iteration?
+        columns = ','.join(columns_to_create)
+        parsers = ','.join(raw_fields)
+
+        cur.execute(f"""
+                 create or replace table "MYDBT"."DE_SILVER"."SALES_EXTRACT_CAST"(                        
+                    {columns}                        
+                 ) as
+                    select
+                        {parsers}
+                    from
+                        "MYDBT"."DE_SILVER"."SALES_DEDUP";
+                """)
 
 cur.close()
