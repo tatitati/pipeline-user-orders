@@ -41,11 +41,34 @@ cur = snow_conn.cursor()
 
 
 # ORDERS_EXTRACT -> DIM_STATUS
-cur.execute(f'create table if not exists "MYDBT"."DE_GOLD"."FACT_SALES" like "MYDBT"."DE_SILVER"."SALES_EXTRACT_CAST";')
+cur.execute(f'''
+        create table if not exists "MYDBT"."DE_GOLD"."FACT_SALES" as 
+        select 
+            extracted.*,
+            current_timestamp() as valid_from,
+            True as is_effective
+        from  
+            "MYDBT"."DE_SILVER"."SALES_EXTRACT_CAST"  extracted                   
+;''')
+cur.execute("""
+        merge into  "MYDBT"."DE_GOLD"."FACT_SALES" fact
+            using (
+                select * 
+                from "MYDBT"."DE_SILVER"."SALES_EXTRACT_CAST"
+            ) extracted
+            on extracted.order_id = fact.order_id
+            when matched then
+                update set
+                  fact.is_effective = FALSE     
+        """)
+
 cur.execute("""
         insert into  "MYDBT"."DE_GOLD"."FACT_SALES"
-            select *
-            from "MYDBT"."DE_SILVER"."SALES_EXTRACT_CAST";
+            select 
+                extracted.*,
+                current_timestamp(),
+                True                
+            from "MYDBT"."DE_SILVER"."SALES_EXTRACT_CAST" extracted;
         """)
 
 cur.close()

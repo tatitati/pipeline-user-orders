@@ -59,7 +59,7 @@ snow_conn = snowflake.connector.connect(
 try:
     max_created = f"""
         select max(created_at)
-        from "MYDBT"."DE_BRONZE"."ORDERS";
+        from "MYDBT"."DE_SILVER"."SALES_CURRENT";
     """
 
     cur = snow_conn.cursor()
