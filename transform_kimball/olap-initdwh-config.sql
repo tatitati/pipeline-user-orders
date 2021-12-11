@@ -30,6 +30,27 @@ CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE"."ORDERS"(
   metadata_row_number integer not null
 );
 
+CREATE OR REPLACE TABLE "MYDBT"."DE_BRONZE"."SALES"(
+  PARQUET_RAW VARIANT not null,
+  md5 varchar(100) not null,
+  created_at datetime not null default CURRENT_TIMESTAMP(),
+  source varchar not null,
+  metadata_row_number integer not null
+);
+
+create or replace pipe mydbt.de_bronze.sales auto_ingest=true as
+        COPY INTO "MYDBT"."DE_BRONZE"."SALES"
+        from (
+          select
+            *,
+            md5(*), -- to manage duplicates
+            current_timestamp(),
+            concat('s3://pipelineusersorders/',METADATA$FILENAME),
+            METADATA$FILE_ROW_NUMBER
+          from @"s3pipelineusersorders"/sales
+        )
+        pattern = '.*/.*[.]parquet'
+        file_format = (type=PARQUET COMPRESSION=SNAPPY);
 
 create or replace pipe mydbt.de_bronze.users auto_ingest=true as
         COPY INTO "MYDBT"."DE_BRONZE"."USERS"
