@@ -41,6 +41,6 @@ cur = snow_conn.cursor()
 
 
 cur.execute(f'create or replace table "MYDBT"."DE_SILVER"."SALES_CURRENT" like "MYDBT"."DE_BRONZE"."SALES";')
-cur.execute(f'alter table "MYDBT"."DE_BRONZE"."SALES" swap with "MYDBT"."DE_SILVER"."SALES_CURRENT";')
+cur.execute(f'alter table "MYDBT"."DE_BRONZE"."SALES" swap with "MYDBT"."DE_SILVER"."SALES_CURRENT";') # get delta
 
 cur.close()
