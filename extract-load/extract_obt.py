@@ -163,9 +163,11 @@ if df_with_schema.count() > 0:
     print(f'uploading to s3: {bucket}/{filename}')
 
     now = datetime.datetime.now()
-
+    # convert to parquet
     out_buffer = BytesIO()
     df_with_schema.toPandas().to_parquet(out_buffer, engine="auto", compression='snappy')
+
+    # upload parquet to s3
     s3\
         .Object(
             bucket_name,
